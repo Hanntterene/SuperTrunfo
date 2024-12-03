@@ -1,0 +1,33 @@
+ID,nome,bool,categoria,influencia,estrategia,popularidade,legado
+1,Albert Einstein,False,A,95,60,5,18
+2,Marie Curie,False,A,85,70,4,16
+3,Leonardo da Vinci,False,A,90,80,5,19
+4,Cleópatra,False,C,70,50,5,12
+5,Júlio César,False,A,88,95,5,18
+6,Alexandre o Grande,False,A,90,95,5,20
+7,Isaac Newton,False,A,95,70,5,18
+8,Napoleão Bonaparte,False,A,85,90,4,17
+9,Galileu Galilei,False,C,85,40,3,15
+10,Abraham Lincoln,False,B,80,50,5,18
+11,Martin Luther King Jr.,False,B,85,60,5,18
+12,Joana d’Arc,False,B,75,85,4,15
+13,Florence Nightingale,False,C,80,30,3,14
+14,Mahatma Gandhi,False,A,95,60,5,19
+15,Winston Churchill,False,B,85,75,4,16
+16,Frida Kahlo,False,D,50,40,2,12
+17,Albert Schweitzer,False,D,60,50,3,12
+18,Rosa Parks,False,C,75,45,4,13
+19,Simón Bolívar,False,B,85,70,4,16
+20,Nikola Tesla,False,C,90,30,3,15
+21,Amelia Earhart,False,C,70,40,3,10
+22,Thomas Edison,False,B,85,50,4,14
+23,Malala Yousafzai,False,B,75,45,4,15
+24,Theodore Roosevelt,False,C,80,70,3,14
+25,Nelson Mandela,True,A,95,85,5,20
+26,Elisabeth I,False,C,70,55,3,14
+27,George Washington,False,B,80,65,4,16
+28,Sócrates,False,C,85,50,2,12
+29,Aristóteles,False,C,80,40,2,13
+30,Platão,False,D,75,30,1,11
+31,Confúcio,False,C,90,30,2,13
+32,Genghis Khan,False,B,85,95,4,17
