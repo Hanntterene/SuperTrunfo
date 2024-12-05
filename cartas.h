@@ -13,9 +13,9 @@ typedef struct {
     char numero;
     bool super_trunfo;
     int a1;
-    int a2;
-    int a3;
-    int a4;
+    int estrategia;
+    int popularidade;
+    int legado;
     bool carta_jogador;
 } Cartas;
 
@@ -26,9 +26,9 @@ typedef struct {
     char numero;
     bool super_trunfo;
     int a1;
-    int a2;
-    int a3;
-    int a4;
+    int estrategia;
+    int popularidade;
+    int legado;
 } Cartas_jogador;
 
 // Funções para manipulação de cartas

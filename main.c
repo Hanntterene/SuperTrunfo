@@ -28,9 +28,9 @@ typedef struct {
     char numero;
     bool super_trunfo;
     int influencia;
-    int a2;
-    int a3;
-    int a4;
+    int estrategia;
+    int popularidade;
+    int legado;
     bool carta_jogador;
 } Cartas;
 
@@ -41,9 +41,9 @@ typedef struct {
     char numero;
     bool super_trunfo;
     int influencia;
-    int a2;
-    int a3;
-    int a4;
+    int estrategia;
+    int popularidade;
+    int legado;
 } Cartas_jogador;
 */
 
@@ -52,13 +52,13 @@ void exibeCartas (Cartas *lista, int i) {
         printf("SUPER TRUNFO\n");
         printf("Carta %d:\n", i + 1);
         printf("  Nome: %s\n", lista[i].nome);
-        printf("  Atributos: %d, %d, %d, %d\n", lista[i].influencia, lista[i].a2, lista[i].a3, lista[i].a4);
+        printf("  Atributos: %d, %d, %d, %d\n", lista[i].influencia, lista[i].estrategia, lista[i].popularidade, lista[i].legado);
         printf("  Código: %c-%d\n\n", lista[i].letra, lista[i].numero);
     }
     else {
         printf("Carta %d:\n", i + 1);
         printf("  Nome: %s\n", lista[i].nome);
-        printf("  Atributos: %d, %d, %d, %d\n", lista[i].influencia, lista[i].a2, lista[i].a3, lista[i].a4);
+        printf("  Atributos: %d, %d, %d, %d\n", lista[i].influencia, lista[i].estrategia, lista[i].popularidade, lista[i].legado);
         printf("  Código: %c-%d\n\n", lista[i].letra, lista[i].numero);
     }
 }
@@ -113,13 +113,13 @@ int main() {
                     lista[index].influencia = atoi(token); // Salvo como int (converte string -> int) 
                     break;
                 case 4: 
-                    lista[index].a2 = atoi(token);
+                    lista[index].estrategia = atoi(token);
                     break;
                 case 5: 
-                    lista[index].a3 = atoi(token);
+                    lista[index].popularidade = atoi(token);
                     break;
                 case 6: 
-                    lista[index].a4 = atoi(token);
+                    lista[index].legado = atoi(token);
                     break;
                 case 7:
                     lista[index].letra = token[0]; // Corrige para armazenar apenas o primeiro caractere
