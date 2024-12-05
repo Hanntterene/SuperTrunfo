@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <ctype.h>
 
 /**
  * @brief 
@@ -28,9 +29,9 @@ typedef struct {
     char numero;
     bool super_trunfo;
     int influencia;
-    int a2;
-    int a3;
-    int a4;
+    int estrategia;
+    int popularidade;
+    int legado;
     bool carta_jogador;
 } Cartas;
 
@@ -41,9 +42,9 @@ typedef struct {
     char numero;
     bool super_trunfo;
     int influencia;
-    int a2;
-    int a3;
-    int a4;
+    int estrategia;
+    int popularidade;
+    int legado;
 } Cartas_jogador;
 */
 
@@ -52,13 +53,21 @@ void exibeCartas (Cartas *lista, int i) {
         printf("SUPER TRUNFO\n");
         printf("Carta %d:\n", i + 1);
         printf("  Nome: %s\n", lista[i].nome);
-        printf("  Atributos: %d, %d, %d, %d\n", lista[i].influencia, lista[i].a2, lista[i].a3, lista[i].a4);
+        printf("  Atributos:\n");
+        printf("    - Influência: %d\n", lista[i].influencia);
+        printf("    - Estratégia: %d\n", lista[i].estrategia);
+        printf("    - Popularidade: %d\n", lista[i].popularidade);
+        printf("    - Legado: %d\n", lista[i].legado);
         printf("  Código: %c-%d\n\n", lista[i].letra, lista[i].numero);
     }
     else {
         printf("Carta %d:\n", i + 1);
         printf("  Nome: %s\n", lista[i].nome);
-        printf("  Atributos: %d, %d, %d, %d\n", lista[i].influencia, lista[i].a2, lista[i].a3, lista[i].a4);
+        printf("  Atributos:\n");
+        printf("    - Influência: %d\n", lista[i].influencia);
+        printf("    - Estratégia: %d\n", lista[i].estrategia);
+        printf("    - Popularidade: %d\n", lista[i].popularidade);
+        printf("    - Legado: %d\n", lista[i].legado);
         printf("  Código: %c-%d\n\n", lista[i].letra, lista[i].numero);
     }
 }
@@ -70,9 +79,57 @@ void preencheString (char pesquisa_nome[]) {
     pesquisa_nome[strcspn(pesquisa_nome, "\n")] = '\0';
 }
 
+void exibeAtributos (char pesquisa_nome[], Cartas lista[], int i) {
+    if(strcmp(pesquisa_nome, "influencia") == 0) {
+        printf("-> %s", lista[i].nome);
+        printf(" Influência: %d\n", lista[i].influencia);
+        }
+        else if(strcmp(pesquisa_nome, "estrategia") == 0) {
+        printf("-> %s", lista[i].nome);
+        printf(" Estratégia: %d\n", lista[i].estrategia);
+        }
+        else if(strcmp(pesquisa_nome, "popularidade") == 0) {
+        printf("-> %s", lista[i].nome);
+        printf(" Popularidade: %d\n", lista[i].popularidade);
+        }
+        else if(strcmp(pesquisa_nome, "legado") == 0) {
+        printf("-> %s", lista[i].nome);
+        printf(" Legado: %d\n", lista[i].legado);
+        }
+        else {
+        printf("Não foi encontrado nenhum atributo referente a pesquisa\n");
+        }
+}
+
+void pesquisaAtributoID (char pesquisa_nome[], int selecao) {
+    int ID_numero;
+    char ID_letra;
+
+    setbuf(stdin, NULL);
+    if (selecao == 1) {
+        printf("Digite o atributo a ser pesquisado: ");
+        fgets(pesquisa_nome, 20, stdin);
+    }
+    else {
+        do {
+            printf("Digite o número do ID (1-8): ");
+            scanf("%d", &ID_numero);
+        } while (ID_numero > 8 || ID_numero < 1);
+
+        setbuf(stdin, NULL);
+        do {
+            printf("Digite uma letra do ID (A - D): ");
+            scanf("%c", &ID_letra);
+            ID_letra = tolower(ID_letra);
+        } while (ID_letra != 'a' || ID_letra != 'b' || ID_letra != 'c' || ID_letra != 'd');
+
+    }
+    pesquisa_nome[strcspn(pesquisa_nome, "\n")] = '\0';
+}
+
 int main() {
-    int tamanho = 10;
-    char filename[] = "C:\\AA - Faculdade\\C\\Trabalho segundo periodo\\cartas.csv";
+    int tamanho = 32;
+    char filename[] = "C:\\Users\\rstra\\OneDrive\\Documentos\\GitHub\\SuperTrunfo\\cartas.csv";
     int contador = 0;
     int coluna;
     char linhas[256];
@@ -113,13 +170,13 @@ int main() {
                     lista[index].influencia = atoi(token); // Salvo como int (converte string -> int) 
                     break;
                 case 4: 
-                    lista[index].a2 = atoi(token);
+                    lista[index].estrategia = atoi(token);
                     break;
                 case 5: 
-                    lista[index].a3 = atoi(token);
+                    lista[index].popularidade = atoi(token);
                     break;
                 case 6: 
-                    lista[index].a4 = atoi(token);
+                    lista[index].super_trunfo = atoi(token);
                     break;
                 case 7:
                     lista[index].letra = token[0]; // Corrige para armazenar apenas o primeiro caractere
@@ -128,7 +185,7 @@ int main() {
                     lista[index].numero = atoi(token);
                     break;
                 case 9: 
-                    lista[index].super_trunfo = atoi(token);
+                    lista[index].legado = atoi(token);
                     break;
             }
             token = strtok(NULL, ",");
@@ -141,6 +198,7 @@ int main() {
     int escolha;
     int tipo_pesquisa;
     int modo;
+    int selecao;
     char pesquisa_nome[40];
     // int pesquisa_valor_atributo;
     bool existencia = 0;
@@ -208,37 +266,32 @@ int main() {
                                     printf("-> ");
                                     setbuf(stdin, NULL);
                                     scanf("%c", &nova_pesquisa);
-                                } while (nova_pesquisa != 's' || nova_pesquisa != 's');
+                                    nova_pesquisa = tolower(nova_pesquisa);
+                                } while (nova_pesquisa != 's' || nova_pesquisa != 'n');
                                 existencia = 0;
                             }
 
                             if (tipo_pesquisa == 2) {
-                                printf("   1 - Atributo\n");
-                                printf("   2 - ID (Letra ou Número)\n");
-                                printf("Escolha o tipo de pesquisa: \n");
-                                preencheString(pesquisa_nome);
-                                for (int i = 0; i < tamanho; i += 1) {
-                                    if(strcmp(pesquisa_nome, "influencia") == 0) {
-                                        printf("-> %s", lista[i].nome);
-                                        printf(" Influência: %d", lista[i].influencia);
+                                do {
+                                    printf("   1 - Atributo\n");
+                                    printf("   2 - ID (Letra e Número)\n");
+                                    printf("   3 - Voltar\n");
+                                
+                                    printf("Escolha o tipo de pesquisa: ");
+                                    scanf("%d", &selecao);
+                                
+                                    if (selecao == 1) {
+                                        pesquisaAtributoID(pesquisa_nome, selecao);
+                                        
+                                        for (int i = 0; i < tamanho; i += 1) {
+                                            exibeAtributos(pesquisa_nome, lista, i);
+                                        }
                                     }
-                                    else if(strcmp(pesquisa_nome, "influencia") == 0) {
-                                        printf("-> %s", lista[i].nome);
-                                        printf(" Influência: %d", lista[i].influencia);
-                                    }
-                                    else if(strcmp(pesquisa_nome, "influencia") == 0) {
-                                        printf("-> %s", lista[i].nome);
-                                        printf(" Influência: %d", lista[i].influencia);
-                                    }
-                                    else if(strcmp(pesquisa_nome, "influencia") == 0) {
-                                        printf("-> %s", lista[i].nome);
-                                        printf(" Influência: %d", lista[i].influencia);
-                                    }
-                                    else {
-                                        printf("Não foi encontrado nenhum atributo referente a pesquisa\n");
-                                    }
-                                }
 
+                                    else if (selecao == 2){
+                                        pesquisaAtributoID(pesquisa_nome, selecao);
+                                    }
+                                } while (selecao != 3);
                             }
                         } while (tipo_pesquisa != 3);
                     break;
