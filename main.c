@@ -58,6 +58,7 @@ void exibeCartas (Cartas *lista, int i) {
         printf("    - Estratégia: %d\n", lista[i].estrategia);
         printf("    - Popularidade: %d\n", lista[i].popularidade);
         printf("    - Legado: %d\n", lista[i].legado);
+        printf("  Atributos: %d, %d, %d, %d\n", lista[i].influencia, lista[i].estrategia, lista[i].popularidade, lista[i].legado);
         printf("  Código: %c-%d\n\n", lista[i].letra, lista[i].numero);
     }
     else {
@@ -68,6 +69,7 @@ void exibeCartas (Cartas *lista, int i) {
         printf("    - Estratégia: %d\n", lista[i].estrategia);
         printf("    - Popularidade: %d\n", lista[i].popularidade);
         printf("    - Legado: %d\n", lista[i].legado);
+        printf("  Atributos: %d, %d, %d, %d\n", lista[i].influencia, lista[i].estrategia, lista[i].popularidade, lista[i].legado);
         printf("  Código: %c-%d\n\n", lista[i].letra, lista[i].numero);
     }
 }
