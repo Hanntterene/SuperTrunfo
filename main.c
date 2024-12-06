@@ -58,8 +58,7 @@ void exibeCartas (Cartas *lista, int i) {
         printf("    - Estratégia: %d\n", lista[i].estrategia);
         printf("    - Popularidade: %d\n", lista[i].popularidade);
         printf("    - Legado: %d\n", lista[i].legado);
-        printf("  Atributos: %d, %d, %d, %d\n", lista[i].influencia, lista[i].estrategia, lista[i].popularidade, lista[i].legado);
-        printf("  Código: %c-%d\n\n", lista[i].letra, lista[i].numero);
+        printf("    - Código: %c-%d\n\n", lista[i].letra, lista[i].numero);
     }
     else {
         printf("Carta %d:\n", i + 1);
@@ -69,8 +68,7 @@ void exibeCartas (Cartas *lista, int i) {
         printf("    - Estratégia: %d\n", lista[i].estrategia);
         printf("    - Popularidade: %d\n", lista[i].popularidade);
         printf("    - Legado: %d\n", lista[i].legado);
-        printf("  Atributos: %d, %d, %d, %d\n", lista[i].influencia, lista[i].estrategia, lista[i].popularidade, lista[i].legado);
-        printf("  Código: %c-%d\n\n", lista[i].letra, lista[i].numero);
+        printf("    - Código: %c-%d\n\n", lista[i].letra, lista[i].numero);
     }
 }
 
@@ -102,15 +100,15 @@ void exibeAtributos (char pesquisa_nome[], Cartas lista[], int i) {
         printf("Não foi encontrado nenhum atributo referente a pesquisa\n");
         }
 }
-
-void pesquisaAtributoID (char pesquisa_nome[], int selecao) {
+void pesquisaAtributoID (char pesquisa_nome[], int *selecao, int * tamanho, Cartas lista[]) {
     int ID_numero;
     char ID_letra;
 
     setbuf(stdin, NULL);
-    if (selecao == 1) {
+    if (*selecao == 1) {
         printf("Digite o atributo a ser pesquisado: ");
         fgets(pesquisa_nome, 20, stdin);
+        pesquisa_nome[strcspn(pesquisa_nome, "\n")] = '\0';
     }
     else {
         do {
@@ -122,12 +120,74 @@ void pesquisaAtributoID (char pesquisa_nome[], int selecao) {
         do {
             printf("Digite uma letra do ID (A - D): ");
             scanf("%c", &ID_letra);
-            ID_letra = tolower(ID_letra);
-        } while (ID_letra != 'a' || ID_letra != 'b' || ID_letra != 'c' || ID_letra != 'd');
+            ID_letra = toupper(ID_letra);
+        } while (ID_letra != 'A' && ID_letra != 'B' && ID_letra != 'C' && ID_letra != 'D');
+
+        for (int i = 0; i < *tamanho; i += 1) {
+            if (lista[i].numero == ID_numero && lista[i].letra == ID_letra) {
+                exibeCartas(lista, i);
+            }
+        }
 
     }
-    pesquisa_nome[strcspn(pesquisa_nome, "\n")] = '\0';
 }
+
+void pesquisaNome (char pesquisa_nome[], int *tamanho, Cartas lista[], bool* existencia, char* nova_pesquisa) {
+    preencheString(pesquisa_nome);
+    for (int i = 0; i < *tamanho; i += 1) {
+        if (strcmp(pesquisa_nome, lista[i].nome) == 0) {
+            exibeCartas(lista, i);
+            *existencia = 1;
+        }
+    }
+    if (*existencia == 0) {
+        printf("Não foi possível encontrar nenhuma carta com o nome acima...\n");
+    }
+    do {
+        printf("Deseja pesquisar novamente? (s/n)\n");
+        printf("-> ");
+        setbuf(stdin, NULL);
+        scanf("%c", nova_pesquisa);
+        *nova_pesquisa = tolower(*nova_pesquisa);
+    } while (*nova_pesquisa != 's' && *nova_pesquisa != 'n');
+    *existencia = 0;
+}
+
+void submenuAtributoID (char* nova_pesquisa, int* selecao, int* tamanho, Cartas lista[], char pesquisa_nome[]) {
+    do {
+        if (*nova_pesquisa == 'n') { // Modo padrão
+            printf("   1 - Atributo\n");
+            printf("   2 - ID (Letra e Número)\n");
+            printf("   3 - Voltar\n");
+                                    
+            printf("Escolha o tipo de pesquisa: ");
+            scanf("%d", selecao);
+        }
+
+        if (*selecao == 1) {
+            pesquisaAtributoID(pesquisa_nome, (int*)&selecao, (int*)&tamanho, lista);
+                                        
+            for (int i = 0; i < *tamanho; i += 1) {
+                exibeAtributos(pesquisa_nome, lista, i);
+            }
+            do {
+                printf("Deseja pesquisar outro nome? (s/n): ");
+                setbuf(stdin, NULL);
+                printf("-> ");
+                scanf("%c", (char*)&nova_pesquisa);
+                *nova_pesquisa = tolower(*nova_pesquisa);
+            } while (*nova_pesquisa != 'n' && *nova_pesquisa != 's');
+        }
+
+        else if (*selecao == 2){
+            pesquisaAtributoID(pesquisa_nome, (int*)&selecao, (int*)&tamanho, lista);
+        }
+
+        else if (*selecao > 3)
+            printf("Desculpe esse modo não está disponível, selecione um modo válido.\n");
+    } while (*selecao != 3);
+}
+
 
 int main() {
     int tamanho = 32;
@@ -240,6 +300,7 @@ int main() {
                     break;
                     case PESQUISAR:
                         do {
+
                             if (nova_pesquisa == 'n') { // Modo padrão pois nenhuma pesquisa foi realizada ou não foi solicitada
                                 printf("\n1 - Nome da carta\n");
                                 printf("2 - Atributo\n");
@@ -251,62 +312,19 @@ int main() {
                             else { // modo de pesquisa rápida
                                 tipo_pesquisa = 1;
                             }
-
+                            
+                            // Pesquisa por nome
                             if (tipo_pesquisa == 1) {
-                                preencheString(pesquisa_nome);
-                                for (int i = 0; i < tamanho; i += 1) {
-                                    if (strcmp(pesquisa_nome, lista[i].nome) == 0) {
-                                        exibeCartas(lista, i);
-                                        existencia = 1;
-                                    }
-                                }
-                                if (existencia == 0) {
-                                    printf("Não foi possível encontrar nenhuma carta com o nome acima...\n");
-                                }
-                                do {
-                                    printf("Deseja pesquisar novamente? (s/n)\n");
-                                    printf("-> ");
-                                    setbuf(stdin, NULL);
-                                    scanf("%c", &nova_pesquisa);
-                                    nova_pesquisa = tolower(nova_pesquisa);
-                                } while (nova_pesquisa != 's' || nova_pesquisa != 'n');
-                                existencia = 0;
+                                pesquisaNome(pesquisa_nome, &tamanho, lista, &existencia, &nova_pesquisa);
+                            }
+                            
+                            // Pesquisa por atributo ou ID
+                            else if (tipo_pesquisa == 2) {
+                                submenuAtributoID(&nova_pesquisa, &selecao, &tamanho, lista, pesquisa_nome);
                             }
 
-                            if (tipo_pesquisa == 2) {
-                                do {
-                                    if (nova_pesquisa == 'n') { // Modo padrão
-                                        printf("   1 - Atributo\n");
-                                        printf("   2 - ID (Letra e Número)\n");
-                                        printf("   3 - Voltar\n");
-                                    
-                                        printf("Escolha o tipo de pesquisa: ");
-                                        scanf("%d", &selecao);
-                                    }
-
-                                    if (selecao == 1) {
-                                        pesquisaAtributoID(pesquisa_nome, selecao);
-                                        
-                                        for (int i = 0; i < tamanho; i += 1) {
-                                            exibeAtributos(pesquisa_nome, lista, i);
-                                        }
-                                        do {
-                                            printf("Deseja pesquisar outro nome? (s/n): ");
-                                            setbuf(stdin, NULL);
-                                            printf("-> ");
-                                            scanf("%c", &nova_pesquisa);
-                                            nova_pesquisa = tolower(nova_pesquisa);
-                                        } while (nova_pesquisa != 'n' || nova_pesquisa != 's');
-                                    }
-
-                                    else if (selecao == 2){
-                                        pesquisaAtributoID(pesquisa_nome, selecao);
-                                    }
-
-                                    else if (selecao > 3)
-                                        printf("Desculpe esse modo não está disponível, selecione um modo válido.\n");
-                                } while (selecao != 3);
-                            }
+                            else if (tipo_pesquisa > 3)
+                                printf("Opção não disponível...\n");
                         } while (tipo_pesquisa != 3);
                     break;
 
