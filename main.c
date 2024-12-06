@@ -275,24 +275,36 @@ int main() {
 
                             if (tipo_pesquisa == 2) {
                                 do {
-                                    printf("   1 - Atributo\n");
-                                    printf("   2 - ID (Letra e Número)\n");
-                                    printf("   3 - Voltar\n");
-                                
-                                    printf("Escolha o tipo de pesquisa: ");
-                                    scanf("%d", &selecao);
-                                
+                                    if (nova_pesquisa == 'n') { // Modo padrão
+                                        printf("   1 - Atributo\n");
+                                        printf("   2 - ID (Letra e Número)\n");
+                                        printf("   3 - Voltar\n");
+                                    
+                                        printf("Escolha o tipo de pesquisa: ");
+                                        scanf("%d", &selecao);
+                                    }
+
                                     if (selecao == 1) {
                                         pesquisaAtributoID(pesquisa_nome, selecao);
                                         
                                         for (int i = 0; i < tamanho; i += 1) {
                                             exibeAtributos(pesquisa_nome, lista, i);
                                         }
+                                        do {
+                                            printf("Deseja pesquisar outro nome? (s/n): ");
+                                            setbuf(stdin, NULL);
+                                            printf("-> ");
+                                            scanf("%c", &nova_pesquisa);
+                                            nova_pesquisa = tolower(nova_pesquisa);
+                                        } while (nova_pesquisa != 'n' || nova_pesquisa != 's');
                                     }
 
                                     else if (selecao == 2){
                                         pesquisaAtributoID(pesquisa_nome, selecao);
                                     }
+
+                                    else if (selecao > 3)
+                                        printf("Desculpe esse modo não está disponível, selecione um modo válido.\n");
                                 } while (selecao != 3);
                             }
                         } while (tipo_pesquisa != 3);
