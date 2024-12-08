@@ -26,7 +26,7 @@ void alterarCarta(int *tamanho, Cartas lista[])
             printf("1 - Sim");
             printf("2 - Não");
             scanf("%i", &escolha);
-            do
+            do  
             {
                 printf("deseja selecionar outra carta?");
                 printf("1 - Sim");
