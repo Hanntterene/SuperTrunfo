@@ -195,7 +195,7 @@ void submenuAtributoID (char* nova_pesquisa, int* selecao, int* tamanho, Cartas 
 
 int main() {
     int tamanho = 32;
-    char filename[] = "C:\\Users\\rstra\\OneDrive\\Documentos\\GitHub\\SuperTrunfo\\cartas.csv";
+    char filename[] = "cartas.csv";
     int contador = 0;
     int coluna;
     char linhas[256];
