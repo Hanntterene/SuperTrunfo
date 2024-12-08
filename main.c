@@ -80,32 +80,29 @@ void preencheString (char pesquisa_nome[]) {
 }
 
 void exibeAtributos (char pesquisa_nome[], Cartas lista[], int i) {
-    if(strcmp(pesquisa_nome, "influencia") == 0) {
+    if(strcmpi(pesquisa_nome, "influencia") == 0) {
         printf("-> %s", lista[i].nome);
         printf(" Influência: %d\n", lista[i].influencia);
         }
-        else if(strcmp(pesquisa_nome, "estrategia") == 0) {
+        else if(strcmpi(pesquisa_nome, "estrategia") == 0) {
         printf("-> %s", lista[i].nome);
         printf(" Estratégia: %d\n", lista[i].estrategia);
         }
-        else if(strcmp(pesquisa_nome, "popularidade") == 0) {
+        else if(strcmpi(pesquisa_nome, "popularidade") == 0) {
         printf("-> %s", lista[i].nome);
         printf(" Popularidade: %d\n", lista[i].popularidade);
         }
-        else if(strcmp(pesquisa_nome, "legado") == 0) {
+        else if(strcmpi(pesquisa_nome, "legado") == 0) {
         printf("-> %s", lista[i].nome);
         printf(" Legado: %d\n", lista[i].legado);
         }
-        else {
-        printf("Não foi encontrado nenhum atributo referente a pesquisa\n");
-        }
 }
-void pesquisaAtributoID (char pesquisa_nome[], int *selecao, int * tamanho, Cartas lista[]) {
+void pesquisaAtributoID (char pesquisa_nome[], int **selecao, int ** tamanho, Cartas lista[]) {
     int ID_numero;
     char ID_letra;
 
     setbuf(stdin, NULL);
-    if (*selecao == 1) {
+    if (**selecao == 1) {
         printf("Digite o atributo a ser pesquisado: ");
         fgets(pesquisa_nome, 20, stdin);
         pesquisa_nome[strcspn(pesquisa_nome, "\n")] = '\0';
@@ -123,7 +120,7 @@ void pesquisaAtributoID (char pesquisa_nome[], int *selecao, int * tamanho, Cart
             ID_letra = toupper(ID_letra);
         } while (ID_letra != 'A' && ID_letra != 'B' && ID_letra != 'C' && ID_letra != 'D');
 
-        for (int i = 0; i < *tamanho; i += 1) {
+        for (int i = 0; i < **tamanho; i += 1) {
             if (lista[i].numero == ID_numero && lista[i].letra == ID_letra) {
                 exibeCartas(lista, i);
             }
@@ -135,7 +132,7 @@ void pesquisaAtributoID (char pesquisa_nome[], int *selecao, int * tamanho, Cart
 void pesquisaNome (char pesquisa_nome[], int *tamanho, Cartas lista[], bool* existencia, char* nova_pesquisa) {
     preencheString(pesquisa_nome);
     for (int i = 0; i < *tamanho; i += 1) {
-        if (strcmp(pesquisa_nome, lista[i].nome) == 0) {
+        if (strcmpi(pesquisa_nome, lista[i].nome) == 0) {
             exibeCartas(lista, i);
             *existencia = 1;
         }
@@ -165,7 +162,7 @@ void submenuAtributoID (char* nova_pesquisa, int* selecao, int* tamanho, Cartas 
         }
 
         if (*selecao == 1) {
-            pesquisaAtributoID(pesquisa_nome, (int*)&selecao, (int*)&tamanho, lista);
+            pesquisaAtributoID(pesquisa_nome, &selecao, &tamanho, lista);
                                         
             for (int i = 0; i < *tamanho; i += 1) {
                 exibeAtributos(pesquisa_nome, lista, i);
@@ -174,13 +171,20 @@ void submenuAtributoID (char* nova_pesquisa, int* selecao, int* tamanho, Cartas 
                 printf("Deseja pesquisar outro nome? (s/n): ");
                 setbuf(stdin, NULL);
                 printf("-> ");
-                scanf("%c", (char*)&nova_pesquisa);
+                scanf("%c", nova_pesquisa);
                 *nova_pesquisa = tolower(*nova_pesquisa);
             } while (*nova_pesquisa != 'n' && *nova_pesquisa != 's');
         }
 
         else if (*selecao == 2){
-            pesquisaAtributoID(pesquisa_nome, (int*)&selecao, (int*)&tamanho, lista);
+            pesquisaAtributoID(pesquisa_nome, &selecao, &tamanho, lista);
+            do {
+                printf("Deseja pesquisar outro nome? (s/n): ");
+                setbuf(stdin, NULL);
+                printf("-> ");
+                scanf("%c", nova_pesquisa);
+                *nova_pesquisa = tolower(*nova_pesquisa);
+            } while (*nova_pesquisa != 'n' && *nova_pesquisa != 's');
         }
 
         else if (*selecao > 3)
@@ -303,7 +307,7 @@ int main() {
 
                             if (nova_pesquisa == 'n') { // Modo padrão pois nenhuma pesquisa foi realizada ou não foi solicitada
                                 printf("\n1 - Nome da carta\n");
-                                printf("2 - Atributo\n");
+                                printf("2 - Atributo ou ID\n");
                                 printf("3 - Voltar\n");
 
                                 printf("Escolha o tipo de pesquisa: ");
