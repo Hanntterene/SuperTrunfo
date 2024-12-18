@@ -326,7 +326,7 @@ void alterarCarta(int *tamanho, Cartas lista[]) {
 
 int main() {
     int tamanho = 32;
-    char filename[] = "C:\\Users\\rstra\\OneDrive\\Documentos\\GitHub\\SuperTrunfo\\cartas.csv";
+    char filename[] = "cartas.csv";
     int contador = 0;
     int coluna;
     char linhas[256];
@@ -434,6 +434,10 @@ int main() {
                         mudancaCartas = true;
                         tamanho++;
                         lista = realloc(lista, sizeof(Cartas) * tamanho);
+                        if (lista == NULL) {
+                            printf("Não foi possível alocar dinâmicamente.\n");
+                            exit(1);
+                        }   
                         
                         printf("Digite o nome da nova carta a ser incluída: ");
                         preencheString(lista[tamanho - 1].nome);
