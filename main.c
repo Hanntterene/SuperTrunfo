@@ -329,72 +329,88 @@ int main() {
     char filename[] = "cartas.csv";
     int contador = 0;
     int coluna;
+    int tamanhoBinario;
     char linhas[256];
-    bool mudancaCartas = false;
+    FILE *binario = fopen("save.bin", "rb");
+    FILE *file = fopen(filename, "r");
 
     Cartas *lista = (Cartas*) malloc(sizeof(Cartas) * tamanho);
     if (lista == NULL) {
         printf("Não foi possível alocar dinâmicamente.\n");
         exit(1);
     }
-    //Cartas deck[tamanho / 2];
-    FILE *file = fopen(filename, "r");
-    if (file == NULL) {
-        fprintf(stderr, "Não foi possivel abrir o arquivo %s: %s\n", filename, strerror(errno));
-        exit(1);
-    }
-
-    while (fgets(linhas, sizeof(linhas), file)) {
-        contador++; 
-
-        // Pula a linha do cabeçalho
-        if (contador == 1) {
-            continue;
+    // Caso seja a primeira vez acessada, leitura pelo .csv
+    if (binario == NULL) {
+        if (file == NULL) {
+            fprintf(stderr, "Não foi possivel abrir o arquivo %s: %s\n", filename, strerror(errno));
+            exit(1);
         }
 
-        // Preenche a estrutura
-        int index = contador - 2; // Índice no array 
-        if (index >= tamanho) {
-            break; // Garante que não ultrapasse o limite de n cartas, no caso 10
-        }
+        printf("Seja bem-vindo!\n");
 
-        // Casos tokens
-        char *token = strtok(linhas, ",");
-        coluna = 0;
-        while (token) {
-            coluna++;
-            switch (coluna) {
-                case 2: // Nome
-                    strncpy(lista[index].nome, token, sizeof(lista[index].nome) - 1);
-                    lista[index].nome[sizeof(lista[index].nome) - 1] = '\0';
-                    break;
-                case 3:
-                    lista[index].influencia = atoi(token); // Salvo como int (converte string -> int) 
-                    break;
-                case 4: 
-                    lista[index].estrategia = atoi(token);
-                    break;
-                case 5: 
-                    lista[index].popularidade = atoi(token);
-                    break;
-                case 6: 
-                    lista[index].super_trunfo = atoi(token);
-                    break;
-                case 7:
-                    lista[index].letra = token[0]; // Corrige para armazenar apenas o primeiro caractere
-                    break;
-                case 8: 
-                    lista[index].numero = atoi(token);
-                    break;
-                case 9: 
-                    lista[index].legado = atoi(token);
-                    break;
+        while (fgets(linhas, sizeof(linhas), file)) {
+            contador++; 
+
+            // Pula a linha do cabeçalho
+            if (contador == 1) {
+                continue;
             }
-            token = strtok(NULL, ",");
+
+            // Preenche a estrutura
+            int index = contador - 2; // Índice no array 
+            if (index >= tamanho) {
+                break; // Garante que não ultrapasse o limite de n cartas, no caso 10
+            }
+
+            // Casos tokens
+            char *token = strtok(linhas, ",");
+            coluna = 0;
+            while (token) {
+                coluna++;
+                switch (coluna) {
+                    case 2: // Nome
+                        strncpy(lista[index].nome, token, sizeof(lista[index].nome) - 1);
+                        lista[index].nome[sizeof(lista[index].nome) - 1] = '\0';
+                        break;
+                    case 3:
+                        lista[index].influencia = atoi(token); // Salvo como int (converte string -> int) 
+                        break;
+                    case 4: 
+                        lista[index].estrategia = atoi(token);
+                        break;
+                    case 5: 
+                        lista[index].popularidade = atoi(token);
+                        break;
+                    case 6: 
+                        lista[index].super_trunfo = atoi(token);
+                        break;
+                    case 7:
+                        lista[index].letra = token[0]; // Corrige para armazenar apenas o primeiro caractere
+                        break;
+                    case 8: 
+                        lista[index].numero = atoi(token);
+                        break;
+                    case 9: 
+                        lista[index].legado = atoi(token);
+                        break;
+                }
+                token = strtok(NULL, ",");
+            }
         }
     }
-
-    // Fecha o arquivo cartas.csv
+    else {
+        printf("Bem vindo de volta!\n");
+    
+        fseek(binario, 0, SEEK_END);
+        tamanhoBinario = ftell(binario);
+        tamanho = tamanhoBinario / sizeof(Cartas);
+        lista = realloc(lista, sizeof(Cartas) * tamanho);
+        printf("%d\n", tamanho);
+        fread(lista, sizeof(Cartas), tamanho, binario);
+        fseek(binario, 0, 0);
+    }
+    
+    fclose(binario);
     fclose(file);
 
     // variáveis correspondentes as pesquisas de usuário
@@ -430,8 +446,7 @@ int main() {
                 printf("Escolha a opção desejada: ");
                 scanf("%d", &escolha);
                 switch (escolha) {
-                    case INSERIR: 
-                        mudancaCartas = true;
+                    case INSERIR:
                         tamanho++;
                         lista = realloc(lista, sizeof(Cartas) * tamanho);
                         if (lista == NULL) {
@@ -529,11 +544,9 @@ int main() {
                     break;
 
                     case ALTERAR:
-                        mudancaCartas = true;
                         alterarCarta(&tamanho, lista);
                     break;
-                    case EXCLUIR: 
-                        mudancaCartas = true;
+                    case EXCLUIR:
 
                     break;
                     case SAIR:
@@ -559,14 +572,12 @@ int main() {
 
     free(lista);
 
-    /* if (mudancaCartas == true) {
-        FILE* save = fopen("save.csv", "w");
-        fprintf(save, "ID,nome,influencia,estrategia,popularidade,super_trunfo,letra,numero,legado\n");
+    
+    FILE* save = fopen("C:\\Users\\rstra\\OneDrive\\Documentos\\GitHub\\SuperTrunfo\\output\\save.bin", "wb");
+    fwrite(lista, sizeof(Cartas), tamanho, save);
 
-        for (int i = 0; i < tamanho; i += 1) {
-            fprintf(save, "%d,%s,%d,%d,%d,%d,%c,%d,%d", i + 1, lista[i].nome, lista[i].influencia, lista[i].estrategia, lista[i].popularidade, lista[i].super_trunfo, lista[i].letra, lista[i].numero, lista[i].legado);
-        }
-    } */
+    fclose(save);
+
 
     return 0;
 }
