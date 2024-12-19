@@ -326,12 +326,12 @@ void alterarCarta(int *tamanho, Cartas lista[]) {
 
 int main() {
     int tamanho = 32;
-    char filename[] = "cartas.csv";
+    char filename[] = "C:\\Users\\rstra\\OneDrive\\Documentos\\GitHub\\SuperTrunfo\\cartas.csv";
     int contador = 0;
     int coluna;
     int tamanhoBinario;
     char linhas[256];
-    FILE *binario = fopen("save.bin", "rb");
+    FILE *binario = fopen("C:\\Users\\rstra\\OneDrive\\Documentos\\GitHub\\SuperTrunfo\\output\\save.bin", "rb");
     FILE *file = fopen(filename, "r");
 
     Cartas *lista = (Cartas*) malloc(sizeof(Cartas) * tamanho);
@@ -406,8 +406,8 @@ int main() {
         tamanho = tamanhoBinario / sizeof(Cartas);
         lista = realloc(lista, sizeof(Cartas) * tamanho);
         printf("%d\n", tamanho);
-        fread(lista, sizeof(Cartas), tamanho, binario);
         fseek(binario, 0, 0);
+        fread(lista, sizeof(Cartas), tamanho, binario);
     }
     
     fclose(binario);
