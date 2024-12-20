@@ -40,19 +40,19 @@ void preencheString (char pesquisa_nome[]) {
  * @param i 
  */
 void exibeAtributos (char pesquisa_nome[], Cartas lista[], int i) {
-    if(strcmpi(pesquisa_nome, "influencia") == 0) {
+    if(strcasecmp(pesquisa_nome, "influencia") == 0) {
         printf("-> %s", lista[i].nome);
         printf(" Influência: %d\n", lista[i].influencia);
         }
-        else if(strcmpi(pesquisa_nome, "estrategia") == 0) {
+        else if(strcasecmp(pesquisa_nome, "estrategia") == 0) {
         printf("-> %s", lista[i].nome);
         printf(" Estratégia: %d\n", lista[i].estrategia);
         }
-        else if(strcmpi(pesquisa_nome, "popularidade") == 0) {
+        else if(strcasecmp(pesquisa_nome, "popularidade") == 0) {
         printf("-> %s", lista[i].nome);
         printf(" Popularidade: %d\n", lista[i].popularidade);
         }
-        else if(strcmpi(pesquisa_nome, "legado") == 0) {
+        else if(strcasecmp(pesquisa_nome, "legado") == 0) {
         printf("-> %s", lista[i].nome);
         printf(" Legado: %d\n", lista[i].legado);
         }
@@ -111,7 +111,7 @@ void pesquisaNome (char pesquisa_nome[], int *tamanho, Cartas lista[], bool* exi
     printf("Digite o nome da carta a ser pesquisada: ");
     preencheString(pesquisa_nome);
     for (int i = 0; i < *tamanho; i += 1) {
-        if (strcmpi(pesquisa_nome, lista[i].nome) == 0) {
+        if (strcasecmp(pesquisa_nome, lista[i].nome) == 0) {
             exibeCartas(lista, i);
             *existencia = 1;
         }
