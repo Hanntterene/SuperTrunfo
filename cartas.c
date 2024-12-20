@@ -1,6 +1,18 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdio_ext.h>
+
 #include "cartas.h"
+
+#include <stdio.h>
+
+void limpar_buffer() {
+    int ch;
+    // Consome todos os caracteres até encontrar um '\n' ou EOF
+    while ((ch = getchar()) != '\n' && ch != EOF) {
+        // Apenas consome os caracteres
+    }
+}
 
 
 /**
@@ -27,7 +39,7 @@ void exibeCartas(Cartas *lista, int i) {
  * @param pesquisa_nome 
  */
 void preencheString (char pesquisa_nome[]) {
-    setbuf(stdin, NULL);
+    limpar_buffer();
     fgets(pesquisa_nome, 40, stdin);
     pesquisa_nome[strcspn(pesquisa_nome, "\n")] = '\0';
 }
@@ -70,7 +82,7 @@ void pesquisaAtributoID (char pesquisa_nome[], int **selecao, int ** tamanho, Ca
     int ID_numero;
     char ID_letra;
 
-    setbuf(stdin, NULL);
+    limpar_buffer();
     if (**selecao == 1) {
         printf("Digite o atributo a ser pesquisado: ");
         fgets(pesquisa_nome, 20, stdin);
@@ -82,8 +94,8 @@ void pesquisaAtributoID (char pesquisa_nome[], int **selecao, int ** tamanho, Ca
             scanf("%d", &ID_numero);
         } while (ID_numero > 8 || ID_numero < 1);
 
-        setbuf(stdin, NULL);
         do {
+            limpar_buffer();
             printf("Digite uma letra do ID (A - D): ");
             scanf("%c", &ID_letra);
             ID_letra = toupper(ID_letra);
@@ -122,7 +134,7 @@ void pesquisaNome (char pesquisa_nome[], int *tamanho, Cartas lista[], bool* exi
     do {
         printf("Deseja pesquisar novamente? (s/n)\n");
         printf("-> ");
-        setbuf(stdin, NULL);
+        limpar_buffer();
         scanf("%c", nova_pesquisa);
         *nova_pesquisa = tolower(*nova_pesquisa);
     } while (*nova_pesquisa != 's' && *nova_pesquisa != 'n');
@@ -156,9 +168,8 @@ void submenuAtributoID (char* nova_pesquisa, int* selecao, int* tamanho, Cartas 
                 exibeAtributos(pesquisa_nome, lista, i);
             }
             do {
-                printf("Deseja pesquisar outro nome? (s/n): ");
-                setbuf(stdin, NULL);
-                printf("-> ");
+                limpar_buffer();
+                printf("Deseja pesquisar outro atributo? (s/n): ");
                 scanf("%c", nova_pesquisa);
                 *nova_pesquisa = tolower(*nova_pesquisa);
             } while (*nova_pesquisa != 'n' && *nova_pesquisa != 's');
@@ -167,9 +178,8 @@ void submenuAtributoID (char* nova_pesquisa, int* selecao, int* tamanho, Cartas 
         else if (*selecao == 2){
             pesquisaAtributoID(pesquisa_nome, &selecao, &tamanho, lista);
             do {
-                printf("Deseja pesquisar outro nome? (s/n): ");
-                setbuf(stdin, NULL);
-                printf("-> ");
+                limpar_buffer();
+                printf("Deseja pesquisar OUTRA carta? (s/n): ");
                 scanf("%c", nova_pesquisa);
                 *nova_pesquisa = tolower(*nova_pesquisa);
             } while (*nova_pesquisa != 'n' && *nova_pesquisa != 's');
@@ -212,7 +222,7 @@ char lerLetra(const char *mensagem, const char opcoes[]) {
     int valido;
     do {
         printf("%s (%s): ", mensagem, opcoes);
-        setbuf(stdin, NULL);
+        limpar_buffer();
         scanf("%c", &letra);
         letra = toupper(letra);
         valido = (strchr(opcoes, letra) != NULL);
