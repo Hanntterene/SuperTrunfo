@@ -32,7 +32,7 @@ int main() {
     // Caso seja a primeira vez acessada, leitura pelo .csv
     if (binario == NULL) {
         if (file == NULL) {
-            fprintf(stderr, "Não foi possivel abrir o arquivo %s: %s\n", filename, strerror(errno));
+            fprintf(stderr, "Não foi possivel abrir o arquivo %s\n", filename);
             exit(1);
         }
 
@@ -97,9 +97,9 @@ int main() {
         lista = realloc(lista, sizeof(Cartas) * tamanho);
         fseek(binario, 0, 0);
         fread(lista, sizeof(Cartas), tamanho, binario);
+        fclose(binario);
     }
     
-    fclose(binario);
     fclose(file);
 
     // variáveis correspondentes as pesquisas de usuário
