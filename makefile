@@ -4,11 +4,11 @@ main: main.o cartas.o
 
 main.o: main.c
 	@echo "Compilando e gerando o objeto main"
-	gcc -c main.c
+	gcc -c -g main.c
 
 cartas.o: cartas.c
 	@echo "Compilando e gerando o objeto cartas"
-	gcc -c cartas.c
+	gcc -c -g cartas.c
 
 clean:
 	@echo "Apagando objetos e executáveis antigos"
@@ -16,3 +16,6 @@ clean:
 
 run:
 	./main
+
+debug:
+	gdb ./main
