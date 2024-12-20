@@ -3,6 +3,12 @@
 #include "cartas.h"
 
 
+/**
+ * @brief 
+ * 
+ * @param lista 
+ * @param i 
+ */
 void exibeCartas(Cartas *lista, int i) {
     printf(lista[i].super_trunfo == 1 ? "SUPER TRUNFO\n" : "");
     printf("Carta %d:\n", i + 1);
@@ -15,12 +21,24 @@ void exibeCartas(Cartas *lista, int i) {
     printf("    - Código: %c-%d\n\n", lista[i].letra, lista[i].numero);
 }
 
+/**
+ * @brief 
+ * 
+ * @param pesquisa_nome 
+ */
 void preencheString (char pesquisa_nome[]) {
     setbuf(stdin, NULL);
     fgets(pesquisa_nome, 40, stdin);
     pesquisa_nome[strcspn(pesquisa_nome, "\n")] = '\0';
 }
 
+/**
+ * @brief 
+ * 
+ * @param pesquisa_nome 
+ * @param lista 
+ * @param i 
+ */
 void exibeAtributos (char pesquisa_nome[], Cartas lista[], int i) {
     if(strcmpi(pesquisa_nome, "influencia") == 0) {
         printf("-> %s", lista[i].nome);
@@ -39,6 +57,15 @@ void exibeAtributos (char pesquisa_nome[], Cartas lista[], int i) {
         printf(" Legado: %d\n", lista[i].legado);
         }
 }
+
+/**
+ * @brief 
+ * 
+ * @param pesquisa_nome 
+ * @param selecao 
+ * @param tamanho 
+ * @param lista 
+ */
 void pesquisaAtributoID (char pesquisa_nome[], int **selecao, int ** tamanho, Cartas lista[]) {
     int ID_numero;
     char ID_letra;
@@ -71,6 +98,15 @@ void pesquisaAtributoID (char pesquisa_nome[], int **selecao, int ** tamanho, Ca
     }
 }
 
+/**
+ * @brief 
+ * 
+ * @param pesquisa_nome 
+ * @param tamanho 
+ * @param lista 
+ * @param existencia 
+ * @param nova_pesquisa 
+ */
 void pesquisaNome (char pesquisa_nome[], int *tamanho, Cartas lista[], bool* existencia, char* nova_pesquisa) {
     printf("Digite o nome da carta a ser pesquisada: ");
     preencheString(pesquisa_nome);
@@ -93,6 +129,15 @@ void pesquisaNome (char pesquisa_nome[], int *tamanho, Cartas lista[], bool* exi
     *existencia = 0;
 }
 
+/**
+ * @brief 
+ * 
+ * @param nova_pesquisa 
+ * @param selecao 
+ * @param tamanho 
+ * @param lista 
+ * @param pesquisa_nome 
+ */
 void submenuAtributoID (char* nova_pesquisa, int* selecao, int* tamanho, Cartas lista[], char pesquisa_nome[]) {
     do {
         if (*nova_pesquisa == 'n') { // Modo padrão
@@ -135,7 +180,14 @@ void submenuAtributoID (char* nova_pesquisa, int* selecao, int* tamanho, Cartas 
     } while (*selecao != 3);
 }
 
-
+/**
+ * @brief 
+ * 
+ * @param mensagem 
+ * @param min 
+ * @param max 
+ * @return int 
+ */
 int lerNumero(const char *mensagem, int min, int max) {
     int numero;
     do {
@@ -148,6 +200,13 @@ int lerNumero(const char *mensagem, int min, int max) {
     return numero;
 }
 
+/**
+ * @brief 
+ * 
+ * @param mensagem 
+ * @param opcoes 
+ * @return char 
+ */
 char lerLetra(const char *mensagem, const char opcoes[]) {
     char letra;
     int valido;
@@ -164,6 +223,12 @@ char lerLetra(const char *mensagem, const char opcoes[]) {
     return letra;
 }
 
+/**
+ * @brief Confirma a escolha do usuário de pesquisar estar correta ou pesquisar novamente a carta 
+ * 
+ * @param mensagem 
+ * @return int 
+ */
 int confirmarEscolha(const char *mensagem) {
     int escolha;
     do {
@@ -176,6 +241,12 @@ int confirmarEscolha(const char *mensagem) {
     return escolha;
 }
 
+/**
+ * @brief Altera atributos selecionados pelo usuário
+ * 
+ * @param tamanho 
+ * @param lista 
+ */
 void alterarCarta(int *tamanho, Cartas lista[]) {
     int ID_numero, atributo_mod;
     char ID_letra;
@@ -276,4 +347,113 @@ void alterarCarta(int *tamanho, Cartas lista[]) {
     if (!encontrado) {
         printf("Carta com esse ID e letra não encontrada.\n");
     }
+}
+
+// Função para excluir uma carta do deck
+void excluirCarta(int *tamanho, Cartas lista[]) {
+    char pesquisa_nome[50];
+    int existencia = 0, indice = -1;
+
+    printf("Digite o nome da carta que deseja excluir: ");
+    preencheString(pesquisa_nome);
+
+    // Busca a carta pelo nome
+    for (int i = 0; i < *tamanho; i++) {
+        if (strcasecmp(lista[i].nome, pesquisa_nome) == 0) {
+            existencia = 1;
+            indice = i;
+            break;
+        }
+    }
+
+    if (existencia) {
+        printf("Carta encontrada: %s\n", lista[indice].nome);
+        printf("Tem certeza de que deseja excluí-la? (s/n): ");
+        char confirmacao;
+        scanf(" %c", &confirmacao);
+
+        if (confirmacao == 's' || confirmacao == 'S') {
+            // Realoca o vetor removendo a carta
+            for (int i = indice; i < *tamanho - 1; i++) {
+                lista[i] = lista[i + 1];
+            }
+
+            (*tamanho)--;
+            lista = realloc (lista, sizeof(Cartas) * (*tamanho));
+
+            if (lista == NULL && *tamanho > 0) {
+                printf("Erro ao realocar memória após exclusão.\n");
+                exit(1);
+            }
+
+            printf("Carta excluída com sucesso!\n");
+        } else {
+            printf("Exclusão cancelada.\n");
+        }
+    } else {
+        printf("Carta com o nome '%s' não encontrada.\n", pesquisa_nome);
+    }
+}
+
+// Função adicionar cartas
+void inserirCarta(int *tamanho, Cartas **lista) {
+    (*tamanho)++;
+    *lista = realloc(*lista, sizeof(Cartas) * (*tamanho));
+    if (*lista == NULL) {
+        printf("Não foi possível alocar dinamicamente.\n");
+        exit(1);
+    }
+
+    printf("Digite o nome da nova carta a ser incluída: ");
+    preencheString((*lista)[*tamanho - 1].nome);
+
+    do {
+        printf("Digite o número do ID (1 a 8): ");
+        scanf("%d", &(*lista)[*tamanho - 1].numero);
+        if ((*lista)[*tamanho - 1].numero > 8 || (*lista)[*tamanho - 1].numero < 1)
+            printf("Número do ID inválido... números permitidos de 1 a 8\n");
+    } while ((*lista)[*tamanho - 1].numero > 8 || (*lista)[*tamanho - 1].numero < 1);
+
+    do {
+        printf("Digite a letra do ID (A a D): ");
+        scanf(" %c", &(*lista)[*tamanho - 1].letra);  // Corrigido para consumir espaços e quebras de linha
+        (*lista)[*tamanho - 1].letra = toupper((*lista)[*tamanho - 1].letra);
+        if ((*lista)[*tamanho - 1].letra != 'A' && (*lista)[*tamanho - 1].letra != 'B' && (*lista)[*tamanho - 1].letra != 'C' && (*lista)[*tamanho - 1].letra != 'D') {
+            printf("Letra do ID inválida... letras permitidas de A a D\n");
+        }
+    } while ((*lista)[*tamanho - 1].letra != 'A' && (*lista)[*tamanho - 1].letra != 'B' && (*lista)[*tamanho - 1].letra != 'C' && (*lista)[*tamanho - 1].letra != 'D');
+
+
+    do {
+        printf("Digite o valor da influência a ser alocado: ");
+        scanf("%d", &(*lista)[*tamanho - 1].influencia);
+        if ((*lista)[*tamanho - 1].influencia > 5 || (*lista)[*tamanho - 1].influencia < 0)
+            printf("Valor inválido... valores permitidos 0 a 5\n");
+    } while ((*lista)[*tamanho - 1].influencia > 5 || (*lista)[*tamanho - 1].influencia < 0);
+
+    do {
+        printf("Digite o valor da estratégia a ser alocado: ");
+        scanf("%d", &(*lista)[*tamanho - 1].estrategia);
+        if ((*lista)[*tamanho - 1].estrategia > 100 || (*lista)[*tamanho - 1].estrategia < 0)
+            printf("Valor inválido... valores permitidos 0 a 100\n");
+    } while ((*lista)[*tamanho - 1].estrategia > 100 || (*lista)[*tamanho - 1].estrategia < 0);
+
+    do {
+        printf("Digite o valor da popularidade a ser alocado: ");
+        scanf("%d", &(*lista)[*tamanho - 1].popularidade);
+        if ((*lista)[*tamanho - 1].popularidade > 100 || (*lista)[*tamanho - 1].popularidade < 0)
+            printf("Valor inválido... valores permitidos 0 a 100\n");
+    } while ((*lista)[*tamanho - 1].popularidade > 100 || (*lista)[*tamanho - 1].popularidade < 0);
+
+    do {
+        printf("Digite o valor do legado a ser alocado: ");
+        scanf("%d", &(*lista)[*tamanho - 1].legado);
+        if ((*lista)[*tamanho - 1].legado > 20 || (*lista)[*tamanho - 1].legado < 0)
+            printf("Valor inválido... valores permitidos 0 a 20\n");
+    } while ((*lista)[*tamanho - 1].legado > 20 || (*lista)[*tamanho - 1].legado < 0);
+
+    do {
+        printf("Digite 1 para que a carta seja super-trunfo, caso contrário digite 0: ");
+        scanf("%d", &(*lista)[*tamanho - 1].super_trunfo);
+    } while ((*lista)[*tamanho - 1].super_trunfo != 0 && (*lista)[*tamanho - 1].super_trunfo != 1);
 }
