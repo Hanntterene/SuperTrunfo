@@ -3,7 +3,9 @@
 #include <string.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <time.h>
 #include "cartas.h"
+#include "game.h"
 
 /**
  * @brief 
@@ -108,15 +110,19 @@ int main() {
     int modo;
     int selecao;
     char pesquisa_nome[40];
+    int tam_jogador;
+    int tam_bot;
     // int pesquisa_valor_atributo;
     bool existencia = 0;
+    Cartas* jogador = (Cartas*) malloc (sizeof(Cartas) * tamanho);
+    Cartas* bot = (Cartas*) malloc (sizeof(Cartas) * tamanho);
     char nova_pesquisa = 'n'; // condição inicial negada
 
 
     // MENU INCIAL (Edição, início do jogo ou finalização do programa)
     do {
-        printf("1 - EDITOR DE DECK\n");
-        printf("2 - START\n");
+        printf("1 - EDITOR DE Cartas\n");
+        printf("2 - PLAY\n");
         printf("3 - SAIR\n");
 
         printf("Selecione uma opção: ");
@@ -125,18 +131,18 @@ int main() {
         // MENU DE EDIÇÃO
         if (modo == 1) {
             do {
-                printf("\n1 - INSERIR CARTA AO DECK\n");
+                printf("\n1 - INSERIR CARTA AO Cartas\n");
                 printf("2 - LISTA AS CARTAS DISPONÍVEIS\n");
                 printf("3 - PESQUISAR CARTA NA LISTA DISPONÍVEL\n");
-                printf("4 - ALTERAR CARTA NO DECK\n");
-                printf("5 - EXCLUÍR CARTA DO DECK\n");
+                printf("4 - ALTERAR CARTA NO Cartas\n");
+                printf("5 - EXCLUÍR CARTA DO Cartas\n");
                 printf("6 - SAIR DO EDITOR\n");
 
                 printf("Escolha a opção desejada: ");
                 scanf("%d", &escolha);
                 switch (escolha) {
                     case INSERIR:
-                        inserirCarta(&tamanho, &lista);
+                        inserirCarta(&tamanho, &lista, &jogador, &bot);
                     break;
                     case LISTAR:
                         for (int i = 0; i < tamanho; i += 1) {
@@ -178,7 +184,7 @@ int main() {
                         alterarCarta(&tamanho, lista);
                     break;
                     case EXCLUIR:
-                        excluirCarta(&tamanho, lista);
+                        excluirCarta(&tamanho, lista, jogador, bot);
                     break;
                     case SAIR:
                 
@@ -191,7 +197,21 @@ int main() {
         } 
 
         else if (modo == 2) {
-            printf("Desculpe o modo de batalha ainda não está disponível.\n");
+           if (tamanho == 0) {
+                printf("Nenhuma carta disponível. Por favor, insira cartas no Cartas primeiro.\n");
+                continue;
+            }
+
+            distribuiCartas(lista, tamanho, jogador, bot);
+            printf("Distribuição de cartas realizada com sucesso!\n");
+
+            tam_jogador = tamanho / 2;
+            tam_bot = tamanho / 2;
+
+            comparaCartas((Cartas**)&jogador, &tam_jogador, (Cartas**)&bot, &tam_bot);
+
+            free(jogador);
+            free(bot);
         }
 
         else if (modo > 3 || modo < 1) {

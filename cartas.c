@@ -1,10 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include <stdio_ext.h>
-
 #include "cartas.h"
-
-#include <stdio.h>
 
 void limpar_buffer() {
     int ch;
@@ -359,8 +355,8 @@ void alterarCarta(int *tamanho, Cartas lista[]) {
     }
 }
 
-// Função para excluir uma carta do deck
-void excluirCarta(int *tamanho, Cartas lista[]) {
+// Função para excluir uma carta do Deck
+void excluirCarta(int *tamanho, Cartas lista[], Cartas jogador[], Cartas bot[]) {
     char pesquisa_nome[50];
     int existencia = 0, indice = -1;
 
@@ -390,6 +386,9 @@ void excluirCarta(int *tamanho, Cartas lista[]) {
 
             (*tamanho)--;
             lista = realloc (lista, sizeof(Cartas) * (*tamanho));
+            jogador = realloc(jogador, sizeof(Cartas) * (*tamanho));
+            bot = realloc(bot, sizeof(Cartas) * (*tamanho));
+
 
             if (lista == NULL && *tamanho > 0) {
                 printf("Erro ao realocar memória após exclusão.\n");
@@ -406,9 +405,12 @@ void excluirCarta(int *tamanho, Cartas lista[]) {
 }
 
 // Função adicionar cartas
-void inserirCarta(int *tamanho, Cartas **lista) {
+void inserirCarta(int *tamanho, Cartas **lista, Cartas **jogador, Cartas **bot) {
     (*tamanho)++;
     *lista = realloc(*lista, sizeof(Cartas) * (*tamanho));
+    *jogador = realloc(*jogador, sizeof(Cartas) * (*tamanho));
+    *bot = realloc(*bot, sizeof(Cartas) * (*tamanho));
+
     if (*lista == NULL) {
         printf("Não foi possível alocar dinamicamente.\n");
         exit(1);

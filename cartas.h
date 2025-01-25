@@ -22,7 +22,6 @@ typedef struct {
     int legado;
 } Cartas;
 
-// Estrutura para cartas específicas do jogador
 typedef struct {
     char nome[40];
     char letra;
@@ -32,7 +31,7 @@ typedef struct {
     int estrategia;
     int popularidade;
     int legado;
-} Cartas_jogador;
+} Deck;
 
 // Função para exibir informações de uma carta
 void exibeCartas(Cartas *lista, int i);
@@ -65,10 +64,10 @@ int confirmarEscolha(const char *mensagem);
 void alterarCarta(int *tamanho, Cartas lista[]);
 
 // Função para excluir uma carta do deck
-void excluirCarta(int *tamanho, Cartas lista[]);
+void excluirCarta(int *tamanho, Cartas lista[], Deck jogador[], Deck bot[]);
 
 // Função adicionar cartas
-void inserirCarta(int *tamanho, Cartas **lista);
+void inserirCarta(int *tamanho, Cartas **lista, Deck **jogador, Deck **bot);
 
 
 #endif // CARTAS_H
