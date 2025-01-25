@@ -10,6 +10,10 @@ cartas.o: cartas.c
 	@echo "Compilando e gerando o objeto cartas"
 	gcc -c -g cartas.c
 
+game.o: game.c
+	@echo "Compilando e gerando o objeto game"
+	gcc -c -g game.c
+
 clean:
 	@echo "Apagando objetos e executáveis antigos"
 	rm -f *.o main
