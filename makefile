@@ -1,6 +1,6 @@
 main: main.o cartas.o
 	@echo "Gerando arquivo executável"
-	gcc main.o cartas.o -o main
+	gcc main.o cartas.o  game.o -o main
 
 main.o: main.c
 	@echo "Compilando e gerando o objeto main"
