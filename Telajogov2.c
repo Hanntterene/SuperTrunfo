@@ -40,6 +40,8 @@
 #define CONFIRME_PATH "resources\\elementos\\temcerteza.png"
 #define PLAYERWIN_PATH "resources\\elementos\\playerganha.png"
 #define BOTRWIN_PATH "resources\\elementos\\botganha.png"
+#define CONQUISTA_PATH "resources\\elementos\\conquista.png"
+#define CAPA_PATH "resources\\elementos\\cat.png"
 
 // telas do jogo
 typedef enum
@@ -50,16 +52,21 @@ typedef enum
     CONFIRM_EXIT,
     GAME_BOT,
     GAME_PLAYER,
+    GAME_EMPATE,
     END_GAME,
     TELACONQUISTA,
+    PLAYER_WIN,
+    BOT_WIN,
 
 } Telas;
 
 // Enum para determinar quem joga no momento
 typedef enum
 {
+    EMPATE = -1,
     PLAYER,
     BOT
+
 } Rodada;
 
 // atributos
@@ -70,7 +77,6 @@ typedef enum
     POPULARIDADE,
     LEGADO
 } Atributos;
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // funções de cartas que deveriam estar em outro arquivo
@@ -208,9 +214,13 @@ int DeterminarGanhador(int jogador_valor, int bot_valor, Cartas *Player, Cartas 
         {
             return PLAYER;
         }
-        else
+        else if (jogador_valor < bot_valor)
         {
             return BOT;
+        }
+        else
+        {
+            return EMPATE;
         }
     }
 }
@@ -327,10 +337,12 @@ int main(void)
     Texture2D background = LoadTexture(BACKGROUND_PATH);
     Texture2D subtitulo = LoadTexture(SUBTITLE_PATH);
     Texture2D logopp = LoadTexture(LOGO_PATHPP);
-    Texture2D Top = LoadTexture(TOP_PATH);
+    Texture2D top = LoadTexture(TOP_PATH);
     Texture2D confirme = LoadTexture(CONFIRME_PATH);
     Texture2D playerwin = LoadTexture(PLAYERWIN_PATH);
     Texture2D botwin = LoadTexture(BOTRWIN_PATH);
+    Texture2D conquista = LoadTexture(CONQUISTA_PATH);
+    Texture2D capa = LoadTexture(CAPA_PATH);
 
     // inicializa cartas
     Texture2D cartaPlayer;
@@ -410,11 +422,10 @@ int main(void)
                 ClearBackground(RAYWHITE);
 
                 DrawTexture(logopp, 0, 0, WHITE);
-                DrawTexture(Top, 163, 121, WHITE);
+                DrawTexture(top, 163, 121, WHITE);
 
                 DrawTexture(cartaPlayer, 203, 349, WHITE);
-                Texture2D costas = LoadTexture ("resources\\cartas\\cat.png");
-                DrawTexture(costas, 692, 349, WHITE);
+                DrawTexture(capa, 692, 349, WHITE);
             }
 
             // Desenha os botões de atributos
@@ -452,15 +463,18 @@ int main(void)
                 if (ganhador == PLAYER)
                 {
                     currentScreen = GAME_PLAYER;
-                    if (Player[0].super_trunfo == 1){
-currentScreen = TELACONQUISTA;
-
-
+                    if (Player[0].super_trunfo == 1)
+                    {
+                        currentScreen = TELACONQUISTA;
                     }
                 }
-                if (ganhador == BOT)
+                else if (ganhador == BOT)
                 {
                     currentScreen = GAME_BOT;
+                }
+                else if (ganhador == EMPATE)
+                {
+                    currentScreen = GAME_EMPATE;
                 }
             }
 
@@ -472,20 +486,6 @@ currentScreen = TELACONQUISTA;
             }
         }
 
-        if (currentScreen == TELACONQUISTA)
-        {
-
-            DrawRectangle(350, 300, 500, 200, WHITE);
-            DrawRectangleLines(350, 300, 500, 200, WHITE);
-            DrawTexture(confirme, 438, 340, WHITE);
-
-             if (GuiButton((Rectangle){700, 430, 100, 50}, "Não"))
-            {
-                currentScreen = GAME_PLAYER;
-            }
-        }
-        
-
         if (currentScreen == GAME_PLAYER)
         {
 
@@ -496,7 +496,7 @@ currentScreen = TELACONQUISTA;
                 ClearBackground(RAYWHITE);
 
                 DrawTexture(logopp, 0, 0, WHITE);
-                DrawTexture(Top, 163, 121, WHITE);
+                DrawTexture(top, 163, 121, WHITE);
 
                 DrawTexture(cartaPlayer, 203, 349, WHITE);
                 DrawTexture(cartaBot, 692, 349, WHITE);
@@ -516,24 +516,37 @@ currentScreen = TELACONQUISTA;
                 // botão proxima rodada
                 if (GuiButton((Rectangle){39, 920, 300, 57}, "Próxima Rodada"))
                 {
-                    Player = realloc(Player, (totalCartasPlayer + 1) * sizeof(Cartas));
-                    Player[totalCartasPlayer] = Bot[0];
-                    totalCartasPlayer++;
-                    for (int i = 0; i < totalCartasBot - 1; i++)
-                    {
-                        Bot[i] = Bot[i + 1];
-                    }
-                    totalCartasBot--;
+                    Player = realloc(Player, (totalCartasPlayer + 2) * sizeof(Cartas));
+                    (Player)[totalCartasPlayer] = (Bot)[0];
+                    (Player)[totalCartasPlayer + 1] = (Player)[0];
+                    (totalCartasPlayer) += 2;
+
+                    memmove(Player, Player + 1, (totalCartasPlayer - 2) * sizeof(Cartas));
+                    (totalCartasPlayer)--;
+                    Player = realloc(Player, totalCartasPlayer * sizeof(Cartas));
+
+                    memmove(Bot, Bot + 1, (totalCartasBot - 1) * sizeof(Cartas));
+                    (totalCartasBot)--;
                     Bot = realloc(Bot, totalCartasBot * sizeof(Cartas));
-        
 
                     atributo = 0;
                     rodada = 0;
-                    currentScreen = GAME;
+                    if (totalCartasBot == 0)
+                    {
+                        currentScreen = PLAYER_WIN;
+                    }
+                    else
+                    {
+                        currentScreen = GAME;
+                    }
                 }
             }
-
         } // fim do game_player
+
+        if (currentScreen == PLAYER_WIN)
+        {
+            DrawText("Vitória Player", 300, 300, 50, WHITE);
+        }
 
         if (currentScreen == GAME_BOT)
         {
@@ -546,13 +559,11 @@ currentScreen = TELACONQUISTA;
                 ClearBackground(RAYWHITE);
 
                 DrawTexture(logopp, 0, 0, WHITE);
-                DrawTexture(Top, 163, 121, WHITE);
+                DrawTexture(top, 163, 121, WHITE);
 
                 DrawTexture(cartaPlayer, 203, 349, WHITE);
                 DrawTexture(cartaBot, 692, 349, WHITE);
                 DrawTexture(botwin, 503, 920, WHITE);
-
-                
             }
 
             // botão saida + proxima rodada
@@ -565,27 +576,94 @@ currentScreen = TELACONQUISTA;
                 }
 
                 if (GuiButton((Rectangle){39, 920, 300, 57}, "Próxima Rodada"))
-                  {
-                    Bot = realloc(Bot, (totalCartasBot + 1) * sizeof(Cartas));
-                    Bot[totalCartasBot] = Player[0];
-                    totalCartasBot++;
-                    for (int i = 0; i < totalCartasPlayer - 1; i++)
-                    {
-                        Player[i] = Player[i + 1];
-                    }
-                    totalCartasPlayer--;
+                {
+
+                    Bot = realloc(Bot, (totalCartasBot + 2) * sizeof(Cartas));
+                    (Bot)[totalCartasBot] = (Player)[0];
+                    (Bot)[totalCartasBot + 1] = (Bot)[0];
+                    (totalCartasBot) += 2;
+
+                    memmove(Player, Player + 1, (totalCartasPlayer - 1) * sizeof(Cartas));
+                    (totalCartasPlayer)--;
                     Player = realloc(Player, totalCartasPlayer * sizeof(Cartas));
-                    
-                    
-                    
+
+                    memmove(Bot, Bot + 1, (totalCartasBot - 2) * sizeof(Cartas));
+                    (totalCartasBot)--;
+                    Bot = realloc(Bot, totalCartasBot * sizeof(Cartas));
+
                     atributo = 0;
                     rodada = 0;
                     currentScreen = GAME;
+                if (totalCartasPlayer == 0)
+                {
+                    currentScreen = BOT_WIN;
+                }
+                else
+                {
+                    currentScreen = GAME;
+                }
                 }
             }
-
         } // fim do game_bot
 
+        if (currentScreen == BOT_WIN)
+        {
+            DrawText("Vitória Bot", 300, 300, 50, WHITE);
+        }
+
+        if (currentScreen == GAME_EMPATE)
+        {
+            {
+                GuiSetStyle(DEFAULT, TEXT_SIZE, 30);
+                DrawTexture(background, BACKGROUND_X, BACKGROUND_Y, WHITE);
+                ClearBackground(RAYWHITE);
+
+                DrawTexture(logopp, 0, 0, WHITE);
+                DrawTexture(top, 163, 121, WHITE);
+
+                DrawTexture(cartaPlayer, 203, 349, WHITE);
+                DrawTexture(cartaBot, 692, 349, WHITE);
+                // DrawTexture(botwin, 503, 920, WHITE);
+            }
+
+            if (GuiButton((Rectangle){39, 920, 300, 57}, "Próxima Rodada"))
+            {
+                Player = realloc(Player, (totalCartasPlayer + 2) * sizeof(Cartas));
+                (Player)[totalCartasPlayer] = (Bot)[0];
+                (Player)[totalCartasPlayer + 1] = (Player)[0];
+                (totalCartasPlayer) += 2;
+
+                memmove(Player, Player + 1, (totalCartasPlayer - 2) * sizeof(Cartas));
+                (totalCartasPlayer)--;
+                Player = realloc(Player, totalCartasPlayer * sizeof(Cartas));
+
+                memmove(Bot, Bot + 1, (totalCartasBot - 1) * sizeof(Cartas));
+                (totalCartasBot)--;
+                Bot = realloc(Bot, totalCartasBot * sizeof(Cartas));
+
+                atributo = 0;
+                rodada = 0;
+                currentScreen = GAME;
+            }
+        }
+
+        //------------------------------ TELAS DE AVISOS DE CONQUISTAS ----------------------
+        if (currentScreen == TELACONQUISTA)
+        {
+            if (Player[0].super_trunfo == 1 && !(Bot[0].letra == 'a' || Bot[0].letra == 'A'))
+            {
+                DrawRectangle(350, 300, 500, 200, WHITE);
+                DrawRectangleLines(350, 300, 500, 200, WHITE);
+                DrawTexture(conquista, 438, 340, WHITE);
+
+                if (GuiButton((Rectangle){450, 430, 300, 50}, "Continuar"))
+                {
+                    currentScreen = GAME_PLAYER;
+                }
+            }
+        } // fim das telas de conquista
+
+        //------------------------- TELA DE CONFIRMAR SAIDA -------------------------//
         if (currentScreen == CONFIRM_EXIT)
         {
 
