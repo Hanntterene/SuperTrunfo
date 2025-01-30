@@ -1,7 +1,5 @@
 #include <stdio.h>
 #include <string.h>
-#include <stdio.h>
-#include <stdio.h>
 #include <time.h>
 #include "game.h"
 #include "cartas.h"
@@ -88,6 +86,7 @@ void comparaCartas(Cartas **jogador, int *tam_jogador, Cartas **bot, int *tam_bo
                 printf("Atributo inválido! Tente novamente.\n");
                 continue;
         }
+
         if ((*jogador)[0].super_trunfo == 1) {
             if ((*bot)[0].letra == 'A' || (*bot)[0].letra == 'a') {
                 printf("\nBot venceu a rodada! Id A ganha do super trunfo\n");
@@ -101,14 +100,22 @@ void comparaCartas(Cartas **jogador, int *tam_jogador, Cartas **bot, int *tam_bo
                 printf("    - Legado: %d\n", (*bot)[0].legado);
                 printf("    - Código: %c-%d\n\n", (*bot)[0].letra, (*bot)[0].numero);
                 printf("====================================================\n\n");
-                *bot = realloc(*bot, (*tam_bot + 1) * sizeof(Cartas));
+
+                *bot = realloc(*bot, (*tam_bot + 2) * sizeof(Cartas));
                 (*bot)[*tam_bot] = (*jogador)[0];
-                (*tam_bot)++;
+                (*bot)[*tam_bot + 1] = (*bot)[0];
+                (*tam_bot) += 2;
+
                 memmove(*jogador, *jogador + 1, (*tam_jogador - 1) * sizeof(Cartas));
                 (*tam_jogador)--;
                 *jogador = realloc(*jogador, *tam_jogador * sizeof(Cartas));
+
+                memmove(*bot, *bot + 1, (*tam_bot - 2) * sizeof(Cartas));
+                (*tam_bot)--;
+                *bot = realloc(*bot, *tam_bot * sizeof(Cartas));
+
                 continue;
-            } else { 
+            } else {
                 printf("\nJogador venceu a rodada! SUPER TRUNFO\n");
                 printf((*bot)[0].super_trunfo == 1 ? "SUPER TRUNFO\n" : "");
                 printf("Carta do Bot: \n");
@@ -120,12 +127,20 @@ void comparaCartas(Cartas **jogador, int *tam_jogador, Cartas **bot, int *tam_bo
                 printf("    - Legado: %d\n", (*bot)[0].legado);
                 printf("    - Código: %c-%d\n\n", (*bot)[0].letra, (*bot)[0].numero);
                 printf("====================================================\n\n");
-                *jogador = realloc(*jogador, (*tam_jogador + 1) * sizeof(Cartas));
+
+                *jogador = realloc(*jogador, (*tam_jogador + 2) * sizeof(Cartas));
                 (*jogador)[*tam_jogador] = (*bot)[0];
-                (*tam_jogador)++;
+                (*jogador)[*tam_jogador + 1] = (*jogador)[0];
+                (*tam_jogador) += 2;
+
+                memmove(*jogador, *jogador + 1, (*tam_jogador - 2) * sizeof(Cartas));
+                (*tam_jogador)--;
+                *jogador = realloc(*jogador, *tam_jogador * sizeof(Cartas));
+
                 memmove(*bot, *bot + 1, (*tam_bot - 1) * sizeof(Cartas));
                 (*tam_bot)--;
-                *bot = realloc(*bot, *tam_bot * sizeof(Cartas));\
+                *bot = realloc(*bot, *tam_bot * sizeof(Cartas));
+
                 continue;
             }
         } else if ((*bot)[0].super_trunfo == 1) {
@@ -141,12 +156,20 @@ void comparaCartas(Cartas **jogador, int *tam_jogador, Cartas **bot, int *tam_bo
                 printf("    - Legado: %d\n", (*bot)[0].legado);
                 printf("    - Código: %c-%d\n\n", (*bot)[0].letra, (*bot)[0].numero);
                 printf("====================================================\n\n");
-                *jogador = realloc(*jogador, (*tam_jogador + 1) * sizeof(Cartas));
+
+                *jogador = realloc(*jogador, (*tam_jogador + 2) * sizeof(Cartas));
                 (*jogador)[*tam_jogador] = (*bot)[0];
-                (*tam_jogador)++;
+                (*jogador)[*tam_jogador + 1] = (*jogador)[0];
+                (*tam_jogador) += 2;
+
+                memmove(*jogador, *jogador + 1, (*tam_jogador - 2) * sizeof(Cartas));
+                (*tam_jogador)--;
+                *jogador = realloc(*jogador, *tam_jogador * sizeof(Cartas));
+
                 memmove(*bot, *bot + 1, (*tam_bot - 1) * sizeof(Cartas));
                 (*tam_bot)--;
-                *bot = realloc(*bot, *tam_bot * sizeof(Cartas));\
+                *bot = realloc(*bot, *tam_bot * sizeof(Cartas));
+
                 continue;
             } else {
                 printf("\nBot venceu a rodada! SUPER TRUNFO\n");
@@ -160,15 +183,24 @@ void comparaCartas(Cartas **jogador, int *tam_jogador, Cartas **bot, int *tam_bo
                 printf("    - Legado: %d\n", (*bot)[0].legado);
                 printf("    - Código: %c-%d\n\n", (*bot)[0].letra, (*bot)[0].numero);
                 printf("====================================================\n\n");
-                *bot = realloc(*bot, (*tam_bot + 1) * sizeof(Cartas));
+
+                *bot = realloc(*bot, (*tam_bot + 2) * sizeof(Cartas));
                 (*bot)[*tam_bot] = (*jogador)[0];
-                (*tam_bot)++;
+                (*bot)[*tam_bot + 1] = (*bot)[0];
+                (*tam_bot) += 2;
+
                 memmove(*jogador, *jogador + 1, (*tam_jogador - 1) * sizeof(Cartas));
                 (*tam_jogador)--;
                 *jogador = realloc(*jogador, *tam_jogador * sizeof(Cartas));
+
+                memmove(*bot, *bot + 1, (*tam_bot - 2) * sizeof(Cartas));
+                (*tam_bot)--;
+                *bot = realloc(*bot, *tam_bot * sizeof(Cartas));
+
                 continue;
             }
         }
+
         if (jogador_valor > bot_valor) {
             printf("\nJogador venceu a rodada!\n");
             printf((*bot)[0].super_trunfo == 1 ? "SUPER TRUNFO\n" : "");
@@ -181,13 +213,21 @@ void comparaCartas(Cartas **jogador, int *tam_jogador, Cartas **bot, int *tam_bo
             printf("    - Legado: %d\n", (*bot)[0].legado);
             printf("    - Código: %c-%d\n\n", (*bot)[0].letra, (*bot)[0].numero);
             printf("====================================================\n\n");
-            *jogador = realloc(*jogador, (*tam_jogador + 1) * sizeof(Cartas));
+
+            *jogador = realloc(*jogador, (*tam_jogador + 2) * sizeof(Cartas));
             (*jogador)[*tam_jogador] = (*bot)[0];
-            (*tam_jogador)++;
+            (*jogador)[*tam_jogador + 1] = (*jogador)[0];
+            (*tam_jogador) += 2;
+
+            memmove(*jogador, *jogador + 1, (*tam_jogador - 2) * sizeof(Cartas));
+            (*tam_jogador)--;
+            *jogador = realloc(*jogador, *tam_jogador * sizeof(Cartas));
+
             memmove(*bot, *bot + 1, (*tam_bot - 1) * sizeof(Cartas));
             (*tam_bot)--;
             *bot = realloc(*bot, *tam_bot * sizeof(Cartas));
-        } else {
+
+        } else if (jogador_valor < bot_valor) {
             printf("\nBot venceu a rodada!\n");
             printf((*bot)[0].super_trunfo == 1 ? "SUPER TRUNFO\n" : "");
             printf("Carta do Bot: \n");
@@ -199,12 +239,35 @@ void comparaCartas(Cartas **jogador, int *tam_jogador, Cartas **bot, int *tam_bo
             printf("    - Legado: %d\n", (*bot)[0].legado);
             printf("    - Código: %c-%d\n\n", (*bot)[0].letra, (*bot)[0].numero);
             printf("====================================================\n\n");
-            *bot = realloc(*bot, (*tam_bot + 1) * sizeof(Cartas));
+
+            *bot = realloc(*bot, (*tam_bot + 2) * sizeof(Cartas));
             (*bot)[*tam_bot] = (*jogador)[0];
-            (*tam_bot)++;
+            (*bot)[*tam_bot + 1] = (*bot)[0];
+            (*tam_bot) += 2;
+
             memmove(*jogador, *jogador + 1, (*tam_jogador - 1) * sizeof(Cartas));
             (*tam_jogador)--;
             *jogador = realloc(*jogador, *tam_jogador * sizeof(Cartas));
+
+            memmove(*bot, *bot + 1, (*tam_bot - 2) * sizeof(Cartas));
+            (*tam_bot)--;
+            *bot = realloc(*bot, *tam_bot * sizeof(Cartas));
+
+        } else {
+            printf("\nEmpate\n");
+
+            *jogador = realloc(*jogador, (*tam_jogador + 2) * sizeof(Cartas));
+            (*jogador)[*tam_jogador] = (*bot)[0];
+            (*jogador)[*tam_jogador + 1] = (*jogador)[0];
+            (*tam_jogador) += 2;
+
+            memmove(*jogador, *jogador + 1, (*tam_jogador - 2) * sizeof(Cartas));
+            (*tam_jogador)--;
+            *jogador = realloc(*jogador, *tam_jogador * sizeof(Cartas));
+
+            memmove(*bot, *bot + 1, (*tam_bot - 1) * sizeof(Cartas));
+            (*tam_bot)--;
+            *bot = realloc(*bot, *tam_bot * sizeof(Cartas));
         }
     }
 
