@@ -94,21 +94,17 @@ typedef struct
     int legado;       // Atributo de legado
 } Cartas;
 
-void limpar_buffer()
-{
+void limpar_buffer() {
     int ch;
     // Consome todos os caracteres até encontrar um '\n' ou EOF
-    while ((ch = getchar()) != '\n' && ch != EOF)
-    {
+    while ((ch = getchar()) != '\n' && ch != EOF) {
         // Apenas consome os caracteres
     }
 }
 // Função para embaralhar as cartas
-void shuffleCartas(Cartas *array, int n)
-{
+void shuffleCartas(Cartas*array, int n) {
     srand(time(NULL));
-    for (int i = n - 1; i > 0; i--)
-    {
+    for (int i = n - 1; i > 0; i--) {
         int j = rand() % (i + 1);
         Cartas temp = array[i];
         array[i] = array[j];
@@ -117,17 +113,14 @@ void shuffleCartas(Cartas *array, int n)
 }
 
 // Function to distribute Cartas into Cartas_jogador and Cartas_bot
-void distribuiCartas(Cartas *array, int n, Cartas *jogador, Cartas *bot)
-{
+void distribuiCartas(Cartas *array, int n, Cartas *jogador, Cartas *bot) {
     shuffleCartas(array, n);
     int metade = n / 2;
-    if (n % 2 != 0)
-    {
+    if (n % 2 != 0) {
         printf("Número de cartas ímpar, impossível distribuir igualmente.\n");
         return;
     }
-    for (int i = 0; i < metade; i++)
-    {
+    for (int i = 0; i < metade; i++) {
         strcpy(jogador[i].nome, array[i].nome);
         jogador[i].letra = array[i].letra;
         jogador[i].numero = array[i].numero;
@@ -137,8 +130,7 @@ void distribuiCartas(Cartas *array, int n, Cartas *jogador, Cartas *bot)
         jogador[i].popularidade = array[i].popularidade;
         jogador[i].legado = array[i].legado;
     }
-    for (int i = metade; i < n; i++)
-    {
+    for (int i = metade; i < n; i++) {
         strcpy(bot[i - metade].nome, array[i].nome);
         bot[i - metade].letra = array[i].letra;
         bot[i - metade].numero = array[i].numero;
@@ -162,6 +154,7 @@ void geraImagemCarta(Texture2D *carta, Cartas cartaInfo)
     b[1] = '\0';
     char buffer[33];
     printf("%i - %c", i, b[0]);
+
 
     printf("file: %s\n", filePath);
 
@@ -283,75 +276,67 @@ int main(void)
     FILE *binario = fopen("save.bin", "rb");
     FILE *file = fopen(filename, "r");
 
-    if (binario == NULL)
-    {
-        if (file == NULL)
-        {
+   if (binario == NULL) {
+        if (file == NULL) {
             fprintf(stderr, "Não foi possivel abrir o arquivo %s\n", filename);
             exit(1);
         }
 
         printf("Seja bem-vindo!\n");
 
-        while (fgets(linhas, sizeof(linhas), file))
-        {
-            contador++;
+        while (fgets(linhas, sizeof(linhas), file)) {
+            contador++; 
 
             // Pula a linha do cabeçalho
-            if (contador == 1)
-            {
+            if (contador == 1) {
                 continue;
             }
 
             // Preenche a estrutura
-            int index = contador - 2; // Índice no array
-            if (index >= MAX_CARTAS)
-            {
+            int index = contador - 2; // Índice no array 
+            if (index >= MAX_CARTAS) {
                 break; // Garante que não ultrapasse o limite de n cartas, no caso 10
             }
 
             // Casos tokens
             char *token = strtok(linhas, ",");
             coluna = 0;
-            while (token)
-            {
+            while (token) {
                 coluna++;
-                switch (coluna)
-                {
-                case 2: // Nome
-                    strncpy(baralho[index].nome, token, sizeof(baralho[index].nome) - 1);
-                    baralho[index].nome[sizeof(baralho[index].nome) - 1] = '\0';
-                    break;
-                case 3:
-                    baralho[index].influencia = atoi(token); // Salvo como int (converte string -> int)
-                    break;
-                case 4:
-                    baralho[index].estrategia = atoi(token);
-                    break;
-                case 5:
-                    baralho[index].popularidade = atoi(token);
-                    break;
-                case 6:
-                    baralho[index].super_trunfo = atoi(token);
-                    break;
-                case 7:
-                    baralho[index].letra = token[0]; // Corrige para armazenar apenas o primeiro caractere
-                    break;
-                case 8:
-                    baralho[index].numero = atoi(token);
-                    break;
-                case 9:
-                    baralho[index].legado = atoi(token);
-                    break;
+                switch (coluna) {
+                    case 2: // Nome
+                        strncpy(baralho[index].nome, token, sizeof(baralho[index].nome) - 1);
+                        baralho[index].nome[sizeof(baralho[index].nome) - 1] = '\0';
+                        break;
+                    case 3:
+                        baralho[index].influencia = atoi(token); // Salvo como int (converte string -> int) 
+                        break;
+                    case 4: 
+                        baralho[index].estrategia = atoi(token);
+                        break;
+                    case 5: 
+                        baralho[index].popularidade = atoi(token);
+                        break;
+                    case 6: 
+                        baralho[index].super_trunfo = atoi(token);
+                        break;
+                    case 7:
+                        baralho[index].letra = token[0]; // Corrige para armazenar apenas o primeiro caractere
+                        break;
+                    case 8: 
+                        baralho[index].numero = atoi(token);
+                        break;
+                    case 9: 
+                        baralho[index].legado = atoi(token);
+                        break;
                 }
                 token = strtok(NULL, ",");
             }
         }
     }
-    else
-    {
+    else {
         printf("Bem vindo de volta!\n");
-
+    
         fseek(binario, 0, SEEK_END);
         tamanhoBinario = ftell(binario);
         tamanhoBinario = tamanhoBinario / sizeof(Cartas);
@@ -360,6 +345,7 @@ int main(void)
         fread(baralho, sizeof(Cartas), MAX_CARTAS, binario);
         fclose(binario);
     }
+    
 
     fclose(file);
     //   ----------------------------- EDITOR DE BARALHO --------------------------------
@@ -392,6 +378,7 @@ int main(void)
     // define as telas para controle
     int currentScreen = MAIN_MENU;
     int previousScreen = MAIN_MENU;
+
 
     // Loop principal do jogo
     while (!WindowShouldClose())
@@ -526,7 +513,7 @@ int main(void)
         //         ----------------------- CASO PLAYER GANHE A RODADA -----------------------
         if (currentScreen == GAME_PLAYER)
         {
-
+            
             // Desenha o fundo
             {
                 GuiSetStyle(DEFAULT, TEXT_SIZE, 30);
@@ -569,7 +556,6 @@ int main(void)
 
                     atributo = 0;
                     rodada = 0;
-                    
                     if (totalCartasBot == 0)
                     {
                         currentScreen = PLAYER_WIN;
@@ -591,6 +577,7 @@ int main(void)
         //         ----------------------- CASO BOT GANHE A RODADA  -----------------------
         if (currentScreen == GAME_BOT)
         {
+            int j = 0; // como os dois botões "influencia" e "proxima rodada" estão um encima do outro, é preciso uma variavel de controle
 
             // Desenha o fundo
             {
@@ -633,14 +620,15 @@ int main(void)
 
                     atributo = 0;
                     rodada = 0;
-                    if (totalCartasPlayer == 0)
-                    {
-                        currentScreen = BOT_WIN;
-                    }
-                    else
-                    {
-                        currentScreen = GAME;
-                    }
+                    currentScreen = GAME;
+                if (totalCartasPlayer == 0)
+                {
+                    currentScreen = BOT_WIN;
+                }
+                else
+                {
+                    currentScreen = GAME;
+                }
                 }
             }
         } // fim do game_bot
