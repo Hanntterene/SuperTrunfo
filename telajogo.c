@@ -273,29 +273,35 @@ void AtualizaDeck(Cartas **jogador, int *tam_jogador, Cartas **bot, int *tam_bot
 
 int main(void)
 {
+    int conquistas[3] = {0, 0, 0};
+    /*
     char *nomeArquivo = "conquistas.csv";
     FILE *fileconq;
-    int conquistas[3] = {0, 0, 0};
     fileconq = fopen(nomeArquivo, "r");
-    if (fileconq == NULL) {
-    printf("Não foi possível abrir o arquivo '%s'. Usando vetor padrão.\n", nomeArquivo);
-    } else {
+    if (fileconq == NULL)
+    {
+        printf("Não foi possível abrir o arquivo '%s'. Usando vetor padrão.\n", nomeArquivo);
+    }
+    else
+    {
         // Se o arquivo for aberto com sucesso, lê os valores
         fscanf(fileconq, "%d,%d,%d", &conquistas[0], &conquistas[1], &conquistas[2]);
         fclose(fileconq);
     }
+    */
 
     // Carregamento de cartas
-    const int MAX_CARTAS = 2;
+    const int MAX_CARTAS = 32;
     int jogoplay = 0; // marca se o jogo começou ou não
-    char filename[] = "testesempate.csv";
+    char filename[] = "cartas.csv";
     int contador = 0;
     char linhas[256];
     int atributo = 0;
     int jogador_valor, bot_valor;
     int ganhador = -1;
     int rodada = 0;
-
+    int vez = PLAYER;
+    int continuar;
 
     int totalCartasBot = MAX_CARTAS / 2;
     int totalCartasPlayer = MAX_CARTAS / 2;
@@ -381,9 +387,6 @@ int main(void)
         fclose(binario);
     }
 
-    
-    
-    
     fclose(file);
 
     //   ----------------------------- EDITOR DE BARALHO --------------------------------
@@ -487,6 +490,7 @@ int main(void)
                 geraImagemCarta(&cartaBot, Bot[0]);
                 rodada = 1;
                 atributo = 0;
+                continuar = 0;
             }
 
             // Desenha o fundo
@@ -501,36 +505,80 @@ int main(void)
                 DrawTexture(costas, 692, 349, WHITE);
             }
 
-            // Desenha os botões de atributos
-            GuiSetStyle(DEFAULT, TEXT_SIZE, 30);
+            if (vez == PLAYER)
             {
-                if (GuiButton((Rectangle){39, 845, 253, 57}, "Influência"))
+                // Desenha os botões de atributos
+                GuiSetStyle(DEFAULT, TEXT_SIZE, 30);
+                {
+                    if (GuiButton((Rectangle){39, 845, 253, 57}, "Influência"))
+                    {
+                        continuar = 1;
+                        atributo = INFLUENCIA;
+                        jogador_valor = Player[0].influencia;
+                        bot_valor = Bot[0].influencia;
+                    }
+                    if (GuiButton((Rectangle){39 + 1 * (35 + 253), 845, 253, 57}, "Estratégia"))
+                    {
+                        continuar = 1;
+                        atributo = ESTRATEGIA;
+                        jogador_valor = Player[0].estrategia;
+                        bot_valor = Bot[0].estrategia;
+                    }
+                    if (GuiButton((Rectangle){39 + 2 * (35 + 253), 845, 253, 57}, "Popularidade"))
+                    {
+                        continuar = 1;
+                        atributo = POPULARIDADE;
+                        jogador_valor = Player[0].popularidade;
+                        bot_valor = Bot[0].popularidade;
+                    }
+                    if (GuiButton((Rectangle){39 + 3 * (35 + 253), 845, 253, 57}, "Legado"))
+                    {
+                        continuar = 1;
+                        atributo = LEGADO;
+                        jogador_valor = Player[0].legado;
+                        bot_valor = Bot[0].legado;
+                    }
+                } // botoes de atributo
+            }
+            else
+            {
+                Cartas porcentagem;
+                porcentagem.influencia = (Bot[0].influencia / 5) * 100;
+                porcentagem.estrategia = (Bot[0].estrategia / 100) * 100;
+                porcentagem.popularidade = (Bot[0].popularidade / 100) * 100;
+                porcentagem.legado = (Bot[0].legado / 20) * 100;
+
+                if ((porcentagem.influencia > porcentagem.estrategia) && (porcentagem.influencia > porcentagem.popularidade) && (porcentagem.influencia > porcentagem.legado))
                 {
                     atributo = INFLUENCIA;
                     jogador_valor = Player[0].influencia;
                     bot_valor = Bot[0].influencia;
                 }
-                if (GuiButton((Rectangle){39 + 1 * (35 + 253), 845, 253, 57}, "Estratégia"))
+                else if ((porcentagem.estrategia > porcentagem.influencia) && (porcentagem.estrategia > porcentagem.popularidade) && (porcentagem.estrategia > porcentagem.legado))
                 {
                     atributo = ESTRATEGIA;
                     jogador_valor = Player[0].estrategia;
                     bot_valor = Bot[0].estrategia;
                 }
-                if (GuiButton((Rectangle){39 + 2 * (35 + 253), 845, 253, 57}, "Popularidade"))
+                else if ((porcentagem.popularidade > porcentagem.estrategia) && (porcentagem.popularidade > porcentagem.popularidade) && (porcentagem.popularidade > porcentagem.legado))
                 {
                     atributo = POPULARIDADE;
                     jogador_valor = Player[0].popularidade;
                     bot_valor = Bot[0].popularidade;
                 }
-                if (GuiButton((Rectangle){39 + 3 * (35 + 253), 845, 253, 57}, "Legado"))
+                else
                 {
                     atributo = LEGADO;
                     jogador_valor = Player[0].legado;
                     bot_valor = Bot[0].legado;
                 }
-            } // botoes de atributo
+                if (GuiButton((Rectangle){39 + 3 * (35 + 253), 845, 253, 57}, "continue"))
+                {
+                    continuar = 1;
+                }
+            }
 
-            if (atributo != 0)
+            if (atributo != 0 && continuar == 1)
             {
                 ganhador = DeterminarGanhador(jogador_valor, bot_valor, Player, Bot);
                 if (ganhador == PLAYER)
@@ -617,6 +665,8 @@ int main(void)
                     AtualizaDeck(&Player, &totalCartasPlayer, &Bot, &totalCartasBot, currentScreen);
                     atributo = 0;
                     rodada = 0;
+                    continuar = 0;
+                    vez = PLAYER;
                     currentScreen = GAME;
                     if (Bot[0].super_trunfo == 1 && !(Player[0].letra == 'A' || Player[0].letra == 'a') && conquistas[0] == 0)
                     {
@@ -662,6 +712,8 @@ int main(void)
 
                     atributo = 0;
                     rodada = 0;
+                    continuar = 0;
+                    vez = BOT;
                     currentScreen = GAME;
                     if (Bot[0].super_trunfo == 1 && !(Player[0].letra == 'A' || Player[0].letra == 'a') && conquistas[1] == 0)
                     {
@@ -705,6 +757,7 @@ int main(void)
                     AtualizaDeck(&Player, &totalCartasPlayer, &Bot, &totalCartasBot, currentScreen);
                     atributo = 0;
                     rodada = 0;
+                    continuar = 0;
                     currentScreen = GAME;
                     if (conquistas[2] == 0)
                     {
@@ -846,12 +899,14 @@ int main(void)
 
         EndDrawing();
     } // whille (WindowShouldClose)
-
+/*
     fileconq = fopen("conquistas.csv", "w");
-    if (fileconq == NULL) {
+    if (fileconq == NULL)
+    {
         printf("Erro ao criar o arquivo 'conquistas.csv'.\n");
         return 1;
     }
+*/
     // Unload textures
     UnloadTexture(logo);
     UnloadTexture(subtitulo);
