@@ -1,4 +1,4 @@
-#include "raylib.h"
+#include <raylib.h>
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 
@@ -7,28 +7,92 @@
 #include <stdlib.h>
 #include <time.h>
 
+// Define o tamanho da tela
+#define WIDTH 1200
+#define HEIGHT 1000
+
+// Define as posições dos elementos na tela
+#define LOGO_X 180
+#define LOGO_Y 137
+
+#define SUBTITLE_X 422
+#define SUBTITLE_Y 320
+#define BUTTON_WIDTH 464
+#define BUTTON_HEIGHT 97
+#define BUTTON_POS_X 366
+#define BUTTON_POS_Y 458
+#define SPACE BUTTON_HEIGHT + 50
+#define JOGAR_X 488
+#define JOGAR_Y 462
+#define CONQUISTAS_X 372
+#define CONQUISTAS_Y 612
+#define DECK_X 507
+#define DECK_Y 758
+#define BACKGROUND_X 0
+#define BACKGROUND_Y 0
+
+// Define os caminhos para os elementos
+#define LOGO_PATH "resources/elementos/SuperTrunfo.png"
+#define SUBTITLE_PATH "resources\\elementos\\historico.png"
+#define BACKGROUND_PATH "resources\\Elementos\\imagemfundo.png"
+#define LOGO_PATHPP "resources\\elementos\\Group-2.png"
+#define TOP_PATH "resources\\elementos\\Group.png"
+#define CONFIRME_PATH "resources\\elementos\\temcerteza.png"
+#define PLAYERWIN_PATH "resources\\elementos\\Groupplayer.png"
+#define BOTRWIN_PATH "resources\\elementos\\Groupbot.png"
+#define CAPA_PATH "resources\\cartas\\capa.png"
+#define CONQUISTA_PATH "resources\\elementos\\conquista.png"
+#define EMPATE_PATH "resources\\elementos\\empate.png"
+
+// telas do jogo
+typedef enum
+{
+    MAIN_MENU,
+    GAME,
+    ACHIEVEMENTS,
+    CONFIRM_EXIT,
+    GAME_BOT,
+    GAME_PLAYER,
+    GAME_EMPATE,
+    END_GAME,
+    TELACONQUISTA,
+    PLAYER_WIN,
+    BOT_WIN
+
+} Telas;
+
+// Enum para determinar quem joga no momento
+typedef enum
+{
+    EMPATE,
+    PLAYER,
+    BOT,
+} Rodada;
+
+// atributos
+typedef enum
+{
+    INFLUENCIA = 1,
+    ESTRATEGIA,
+    POPULARIDADE,
+    LEGADO
+} Atributos;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// funções de cartas que deveriam estar em outro arquivo
+
 // Estrutura que representa uma carta
 typedef struct
 {
     char nome[40];    // Nome da carta
     char letra;       // Letra identificadora da carta
-    int numero;       // Número da carta
+    char numero;      // Número da carta
     int super_trunfo; // Indica se é um super trunfo
     int influencia;   // Atributo de influência
     int estrategia;   // Atributo de estratégia
     int popularidade; // Atributo de popularidade
     int legado;       // Atributo de legado
 } Cartas;
-
-// Função para limpar o buffer de entrada
-void limpar_buffer()
-{
-    int ch;
-    while ((ch = getchar()) != '\n' && ch != EOF)
-    {
-        // Apenas consome os caracteres
-    }
-}
 
 // Função para embaralhar as cartas
 void shuffleCartas(Cartas *array, int n)
@@ -65,27 +129,7 @@ void distribuiCartas(Cartas *array, int n, Cartas *jogador, Cartas *bot)
     }
 }
 
-// Enum para as telas do jogo
-typedef enum
-{
-    MAIN_MENU,
-    GAME,
-    ACHIEVEMENTS,
-    CONFIRM_EXIT,
-    GAME_2,
-    END_GAME,
-    GAME_Maquina,
-    GAME_Player
-} Screen;
-
-// Enum para determinar quem joga no momento
-typedef enum
-{
-    JOGADOR,
-    MAQUINA
-} Rodada;
-
-// Carregamento de imagens das cartas
+// gerar uma imagem
 void geraImagemCarta(Texture2D *carta, Cartas cartaInfo)
 {
     char filePath[] = "resources\\cartas\\";
@@ -96,16 +140,10 @@ void geraImagemCarta(Texture2D *carta, Cartas cartaInfo)
     b[1] = '\0';
     char buffer[33];
 
-    printf("file: %s\n", filePath);
-
     strcat(filePath, b);
-
-    printf("file: %s\n", filePath);
-
     itoa(i, buffer, 10);
-
     strcat(filePath, buffer);
-
+    strcat(filePath, ".png");
     printf("file: %s\n", filePath);
 
     // Carrega a imagem
@@ -114,7 +152,7 @@ void geraImagemCarta(Texture2D *carta, Cartas cartaInfo)
     // Verifica se a imagem foi carregada corretamente
     if (carta_i.data == NULL)
     {
-        carta_i = LoadImage("resources\\cartas\\cat.png");
+        carta_i = LoadImage(CAPA_PATH);
     }
 
     // Redimensiona a imagem
@@ -126,50 +164,132 @@ void geraImagemCarta(Texture2D *carta, Cartas cartaInfo)
     // Libera a imagem da memória
     UnloadImage(carta_i);
 }
-// exibir atributos
-void DrawCardAttributes(Cartas *carta, int posX, int posY)
+
+// comparar atributos
+
+// comparar atributos
+int DeterminarGanhador(int jogador_valor, int maquina_valor, Cartas *Player, Cartas *Bot)
 {
-    DrawText("Atributos da Carta:", posX, posY, 20, BLACK);
-    DrawText(TextFormat("Nome: %s", carta->nome), posX, posY + 30, 20, BLACK);
-    DrawText(TextFormat("Influência: %d", carta->influencia), posX, posY + 60, 20, BLACK);
-    DrawText(TextFormat("Estratégia: %d", carta->estrategia), posX, posY + 90, 20, BLACK);
-    DrawText(TextFormat("Popularidade: %d", carta->popularidade), posX, posY + 120, 20, BLACK);
-    DrawText(TextFormat("Legado: %d", carta->legado), posX, posY + 150, 20, BLACK);
-    DrawText(TextFormat("Código: %c-%d", carta->letra, carta->numero), posX, posY + 180, 20, BLACK);
+
+    // determinar quem ganhou a rodada
+    // caso o jogador tem supertrunfo
+    if (Player[0].super_trunfo == 1)
+    {
+        // caso bot tem a
+        if (Bot[0].letra == 'A' || Bot[0].letra == 'a')
+        {
+            return BOT;
+        }
+        // caso bot não tem a
+        else
+        {
+            return PLAYER;
+        }
+    }
+
+    // caso bot tem supertrunfo
+    else if (Bot[0].super_trunfo == 1)
+    {
+        // caso jogador tem a
+        if (Player[0].letra == 'A' || Player[0].letra == 'a')
+        {
+            return PLAYER;
+        }
+        else
+        {
+            // caso jogador não tem a
+            return BOT;
+        }
+    }
+
+    // caso ninguém tem supertrunfo
+    else
+    {
+        if (jogador_valor > maquina_valor)
+        {
+            return PLAYER;
+        }
+        else if (jogador_valor < maquina_valor)
+        {
+            return BOT;
+        }
+        else if (jogador_valor == maquina_valor)
+        {
+            return EMPATE;
+        }
+    }
 }
 
-int main()
+void AtualizaDeck(Cartas **jogador, int *tam_jogador, Cartas **bot, int *tam_bot, int currentScreen)
 {
-    // Inicialização da janela
-    const int SCREEN_WIDTH = 1200;
-    const int SCREEN_HEIGHT = 1000;
-    const int FPS = 60;
 
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "SuperTrunfo");
-    SetTargetFPS(FPS);
+    // Move cartas para os respectivos decks
+    Cartas carta_jogador = (*jogador)[0];
+    Cartas carta_bot = (*bot)[0];
 
-    // Inicialização das variáveis de controle de tela
-    Screen currentScreen = MAIN_MENU;
-    Screen previousScreen = MAIN_MENU;
-    GuiSetStyle(DEFAULT, TEXT_SIZE, 50);
+    // Atualiza o deck do jogador
+    memmove(*jogador, *jogador + 1, (*tam_jogador - 1) * sizeof(Cartas));
+    (*tam_jogador)--;
+    *jogador = realloc(*jogador, (*tam_jogador) * sizeof(Cartas));
+
+    // Atualiza o deck do bot
+    memmove(*bot, *bot + 1, (*tam_bot - 1) * sizeof(Cartas));
+    (*tam_bot)--;
+    *bot = realloc(*bot, (*tam_bot) * sizeof(Cartas));
+
+    if (currentScreen == GAME_PLAYER)
+    {
+        *jogador = realloc(*jogador, (*tam_jogador + 2) * sizeof(Cartas));
+        (*jogador)[*tam_jogador] = carta_jogador;
+        (*jogador)[*tam_jogador + 1] = carta_bot;
+        *tam_jogador += 2;
+    }
+
+    if (currentScreen == GAME_BOT)
+    {
+        *bot = realloc(*bot, (*tam_bot + 2) * sizeof(Cartas));
+        (*bot)[*tam_bot] = carta_bot;
+        (*bot)[*tam_bot + 1] = carta_jogador;
+        *tam_bot += 2;
+    }
+
+    if (currentScreen == EMPATE)
+    {
+        *jogador = realloc(*jogador, (*tam_jogador + 1) * sizeof(Cartas));
+        (*jogador)[*tam_jogador] = carta_jogador;
+        (*tam_jogador)++;
+
+        *bot = realloc(*bot, (*tam_bot + 1) * sizeof(Cartas));
+        (*bot)[*tam_bot] = carta_bot;
+        (*tam_bot)++;
+    }
+
+    // Em caso de empate, cada carta retorna ao seu próprio baralho
+}
+int main(void)
+{
+    int conquistas[3] = {0, 0, 0};
 
     // Carregamento de cartas
     const int MAX_CARTAS = 32;
-    int jogoplay = 1;
+    int jogoplay = 0; // marca se o jogo começou ou não
     char filename[] = "cartas.csv";
     int contador = 0;
     char linhas[256];
     int atributo = 0;
     int jogador_valor, bot_valor;
     int ganhador = -1;
+    int rodada = 0;
+
+    int totalCartasBot = MAX_CARTAS / 2;
+    int totalCartasPlayer = MAX_CARTAS / 2;
 
     // Alocação de memória para as cartas do jogador e da máquina
-    Cartas *lista = (Cartas *)malloc(sizeof(Cartas) * MAX_CARTAS);
-    int QNT_CARTAS_PLAYER = MAX_CARTAS / 2;
-    int QNT_CARTAS_MAQUINA = MAX_CARTAS / 2;
-    Cartas *Player = (Cartas *)malloc(sizeof(Cartas) * (QNT_CARTAS_PLAYER));
-    Cartas *Maquina = (Cartas *)malloc(sizeof(Cartas) * (QNT_CARTAS_MAQUINA));
-    if (lista == NULL)
+    Cartas *baralho = (Cartas *)malloc(sizeof(Cartas) * MAX_CARTAS);
+    Cartas *Player = (Cartas *)malloc(sizeof(Cartas) * (totalCartasPlayer));
+    Cartas *Bot = (Cartas *)malloc(sizeof(Cartas) * (totalCartasBot));
+
+    if (baralho == NULL)
     {
         printf("Não foi possível alocar dinâmicamente.\n");
         exit(1);
@@ -206,28 +326,28 @@ int main()
                 switch (coluna)
                 {
                 case 2:
-                    strncpy(lista[index].nome, token, sizeof(lista[index].nome) - 1);
+                    strncpy(baralho[index].nome, token, sizeof(baralho[index].nome) - 1);
                     break;
                 case 3:
-                    lista[index].influencia = atoi(token);
+                    baralho[index].influencia = atoi(token);
                     break;
                 case 4:
-                    lista[index].estrategia = atoi(token);
+                    baralho[index].estrategia = atoi(token);
                     break;
                 case 5:
-                    lista[index].popularidade = atoi(token);
+                    baralho[index].popularidade = atoi(token);
                     break;
                 case 6:
-                    lista[index].super_trunfo = atoi(token);
+                    baralho[index].super_trunfo = atoi(token);
                     break;
                 case 7:
-                    lista[index].letra = token[0];
+                    baralho[index].letra = token[0];
                     break;
                 case 8:
-                    lista[index].numero = atoi(token);
+                    baralho[index].numero = atoi(token);
                     break;
                 case 9:
-                    lista[index].legado = atoi(token);
+                    baralho[index].legado = atoi(token);
                     break;
                 }
                 token = strtok(NULL, ",");
@@ -236,243 +356,335 @@ int main()
     }
     else
     {
-        printf("Bem-vindo de volta!\n");
         fseek(binario, 0, SEEK_END);
         int tamanhoBinario = ftell(binario);
         int tamanho = tamanhoBinario / sizeof(Cartas);
-        lista = realloc(lista, sizeof(Cartas) * tamanho);
+        baralho = realloc(baralho, sizeof(Cartas) * tamanho);
         fseek(binario, 0, 0);
-        fread(lista, sizeof(Cartas), tamanho, binario);
+        fread(baralho, sizeof(Cartas), tamanho, binario);
         fclose(binario);
     }
 
     fclose(file);
+    //   ----------------------------- EDITOR DE BARALHO --------------------------------
 
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Inicializa
+    InitWindow(WIDTH, HEIGHT, "Super Trunfo Histórico");
+
+    // Carrega os elementos
+    Texture2D logo = LoadTexture(LOGO_PATH);
+    Texture2D background = LoadTexture(BACKGROUND_PATH);
+    Texture2D subtitulo = LoadTexture(SUBTITLE_PATH);
+    Texture2D logopp = LoadTexture(LOGO_PATHPP);
+    Texture2D top = LoadTexture(TOP_PATH);
+    Texture2D confirme = LoadTexture(CONFIRME_PATH);
+    Texture2D playerwin = LoadTexture(PLAYERWIN_PATH);
+    Texture2D botwin = LoadTexture(BOTRWIN_PATH);
+    Texture2D conquista = LoadTexture(CONQUISTA_PATH);
+    Texture2D costas = LoadTexture(CAPA_PATH);
+    Texture2D empate = LoadTexture(EMPATE_PATH);
+
+    // inicializa cartas
     Texture2D cartaPlayer;
-    geraImagemCarta(&cartaPlayer, Player[0]);
-    Texture2D cartaMaquina;
-    geraImagemCarta(&cartaMaquina, Maquina[0]);
+    Texture2D cartaBot;
 
-    // Dimensões e posições
-    const int CARD_WIDTH = 200;
-    const int CARD_HEIGHT = 300;
-    const int BUTTON_WIDTH = 200;
-    const int BUTTON_HEIGHT = 60;
-    const int BUTTON_SPACING = 20;
-    const int TOTAL_BUTTONS_WIDTH = (BUTTON_WIDTH + BUTTON_SPACING) * 4 - BUTTON_SPACING;
-    const int BUTTON_X = (SCREEN_WIDTH - TOTAL_BUTTONS_WIDTH) / 2;
-    const int BUTTON_Y = SCREEN_HEIGHT / 2 + CARD_HEIGHT / 2 + 20;
+    // define o estilo inicial ao abrir o jogo
+    GuiLoadStyle("resources\\Elementos\\antigo.rgs");
+    GuiSetStyle(DEFAULT, TEXT_SIZE, 75);
 
-    const int CARD_Y = SCREEN_HEIGHT / 2 - CARD_HEIGHT / 2 - 50;
-    const int PLAYER_CARD_X = SCREEN_WIDTH / 2 - CARD_WIDTH - 20;
-    const int MACHINE_CARD_X = PLAYER_CARD_X + CARD_WIDTH + 40;
-    const int TEXT_X = 20;
-    const int TEXT_Y = CARD_Y;
+    // define as telas para controle
+    int currentScreen = MAIN_MENU;
+    int previousScreen = MAIN_MENU;
 
     // Loop principal do jogo
     while (!WindowShouldClose())
     {
-        BeginDrawing();
-        ClearBackground(WHITE);
-        DrawFPS(10, 10);
-        const char *title = "SuperTrunfo";
-        int fontSizeTitle = 100;
-        int titleWidth = MeasureText(title, fontSizeTitle);
-        int titleX = (SCREEN_WIDTH - titleWidth) / 2;
-        int titleY = SCREEN_HEIGHT / 4;
 
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // TELA MENU
         if (currentScreen == MAIN_MENU)
         {
-            DrawText(title, titleX, titleY, fontSizeTitle, BLACK);
 
-            // Definindo a largura e altura dos botões
-            int buttonWidth = 300;
-            int buttonHeight = 150;
+            // Desenha o fundo
+            DrawTexture(background, BACKGROUND_X, BACKGROUND_Y, WHITE);
+            BeginDrawing();
+            ClearBackground(RAYWHITE);
+            // Desenha o subtitulo
+            DrawTexture(subtitulo, SUBTITLE_X, SUBTITLE_Y, WHITE);
+            // Desenha o logo
+            DrawTexture(logo, LOGO_X, LOGO_Y, WHITE);
 
-            // Calculando a posição do botão "Jogar"
-            Rectangle buttonBounds = {(SCREEN_WIDTH - buttonWidth) / 2, titleY + fontSizeTitle + 50, buttonWidth, buttonHeight};
-            if (GuiButton(buttonBounds, "Jogar"))
+            // Desenha os botões
+            if (GuiButton((Rectangle){BUTTON_POS_X, BUTTON_POS_Y, BUTTON_WIDTH, BUTTON_HEIGHT}, "JOGAR"))
             {
+                // Ação para o botão JOGAR
+                printf("Botão JOGAR pressionado!\n");
                 currentScreen = GAME;
             }
-
-            // Calculando a posição do botão "Conquistas"
-            buttonBounds.y += buttonHeight + 20; // Espaço entre os botões
-            if (GuiButton(buttonBounds, "Conquistas"))
+            if (GuiButton((Rectangle){BUTTON_POS_X, BUTTON_POS_Y + 1 * (SPACE), BUTTON_WIDTH, BUTTON_HEIGHT}, "CONQUISTAS"))
             {
-                currentScreen = ACHIEVEMENTS;
+                // Ação para o botão CONQUISTAS
+                printf("Botão CONQUISTAS pressionado!\n");
             }
-        }
-        else if (currentScreen == GAME)
+            if (GuiButton((Rectangle){BUTTON_POS_X, BUTTON_POS_Y + 2 * (SPACE), BUTTON_WIDTH, BUTTON_HEIGHT}, "DECK"))
+            {
+                // Ação para o botão DECK
+                printf("Botão DECK pressionado!\n");
+            }
+        } // FIM DO MAIN_MENU
+
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // TELAS DE JOGO!
+        //         ----------------------- ESCOLHA ATRIBUTOS -----------------------
+        if (currentScreen == GAME)
         {
-            if (jogoplay == 1)
-            {
-                distribuiCartas(lista, MAX_CARTAS, Player, Maquina);
-                jogoplay = 0;
-            }
-            // desenhos cartas jogador
-            DrawText("Sua Carta", PLAYER_CARD_X + CARD_WIDTH / 2 - MeasureText("Sua Carta", 20) / 2, CARD_Y - 30, 20, BLACK);
-            DrawText("Carta Máquina", MACHINE_CARD_X + CARD_WIDTH / 2 - MeasureText("Carta Máquina", 20) / 2, CARD_Y - 30, 20, BLACK);
 
-            DrawTexture(cartaPlayer, PLAYER_CARD_X, CARD_Y, WHITE);
-            DrawRectangleLines(PLAYER_CARD_X, CARD_Y, CARD_WIDTH, CARD_HEIGHT, DARKGRAY);
-            DrawTexture(cartaMaquina, MACHINE_CARD_X, CARD_Y, WHITE);
-            DrawRectangleLines(MACHINE_CARD_X, CARD_Y, CARD_WIDTH, CARD_HEIGHT, DARKGRAY);
-            // atributos jogador
-            DrawCardAttributes(&Player[0], TEXT_X, TEXT_Y);
+            // caso primeiro jogo
+            if (jogoplay == 0)
+            {
+                distribuiCartas(baralho, MAX_CARTAS, Player, Bot);
+                jogoplay = 1; // começou um jogo
+            }
 
-            if (GuiButton((Rectangle){BUTTON_X, BUTTON_Y, BUTTON_WIDTH + 20, BUTTON_HEIGHT}, "Influência"))
+            // rodada
+            if (rodada == 0)
             {
-                atributo = 1;
+                // gerar cartas atuais
+                geraImagemCarta(&cartaPlayer, Player[0]);
+                geraImagemCarta(&cartaBot, Bot[0]);
+                rodada = 1;
+                atributo = 0;
             }
-            if (GuiButton((Rectangle){BUTTON_X + (BUTTON_WIDTH + BUTTON_SPACING) * 1, BUTTON_Y, BUTTON_WIDTH + 20, BUTTON_HEIGHT}, "Estratégia"))
+
+            // Desenha o fundo
             {
-                atributo = 2;
+                DrawTexture(background, BACKGROUND_X, BACKGROUND_Y, WHITE);
+                ClearBackground(RAYWHITE);
+
+                DrawTexture(logopp, 0, 0, WHITE);
+                DrawTexture(top, 163, 121, WHITE);
+
+                DrawTexture(cartaPlayer, 203, 349, WHITE);
+                DrawTexture(costas, 692, 349, WHITE);
             }
-            if (GuiButton((Rectangle){BUTTON_X + (BUTTON_WIDTH + BUTTON_SPACING) * 2, BUTTON_Y, BUTTON_WIDTH +20, BUTTON_HEIGHT}, "Popularidade"))
+
+            // Desenha os botões de atributos
+            GuiSetStyle(DEFAULT, TEXT_SIZE, 30);
             {
-                atributo = 3;
-            }
-            if (GuiButton((Rectangle){BUTTON_X + (BUTTON_WIDTH + BUTTON_SPACING) * 3, BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT}, "Legado"))
-            {
-                atributo = 4;
-            }
+                if (GuiButton((Rectangle){39, 845, 253, 57}, "Influência"))
+                {
+                    atributo = INFLUENCIA;
+                    jogador_valor = Player[0].influencia;
+                    bot_valor = Bot[0].influencia;
+                }
+                if (GuiButton((Rectangle){39 + 1 * (35 + 253), 845, 253, 57}, "Estratégia"))
+                {
+                    atributo = ESTRATEGIA;
+                    jogador_valor = Player[0].estrategia;
+                    bot_valor = Bot[0].estrategia;
+                }
+                if (GuiButton((Rectangle){39 + 2 * (35 + 253), 845, 253, 57}, "Popularidade"))
+                {
+                    atributo = POPULARIDADE;
+                    jogador_valor = Player[0].popularidade;
+                    bot_valor = Bot[0].popularidade;
+                }
+                if (GuiButton((Rectangle){39 + 3 * (35 + 253), 845, 253, 57}, "Legado"))
+                {
+                    atributo = LEGADO;
+                    jogador_valor = Player[0].legado;
+                    bot_valor = Bot[0].legado;
+                }
+            } // botoes de atributo
 
             if (atributo != 0)
             {
-                switch (atributo)
+                ganhador = DeterminarGanhador(jogador_valor, bot_valor, Player, Bot);
+                if (ganhador == PLAYER)
                 {
-                case 1:
-                    jogador_valor = Player[0].influencia;
-                    bot_valor = Maquina[0].influencia;
-                    break;
-                case 2:
-                    jogador_valor = Player[0].estrategia;
-                    bot_valor = Maquina[0].estrategia;
-                    break;
-                case 3:
-                    jogador_valor = Player[0].popularidade;
-                    bot_valor = Maquina[0].popularidade;
-                    break;
-                case 4:
-                    jogador_valor = Player[0].legado;
-                    bot_valor = Maquina[0].legado;
-                    break;
+                    currentScreen = GAME_PLAYER;
                 }
-                if (Player[0].super_trunfo == 1)
+                if (ganhador == BOT)
                 {
-                    currentScreen = (Maquina[0].letra == 'A' || Maquina[0].letra == 'a') ? GAME_Maquina : GAME_Player;
+                    currentScreen = GAME_BOT;
                 }
-                else if (Maquina[0].super_trunfo == 1)
+                if (ganhador == EMPATE)
                 {
-                    currentScreen = (Player[0].letra == 'A' || Player[0].letra == 'a') ? GAME_Player : GAME_Maquina;
-                }
-                else
-                {
-                    currentScreen = (jogador_valor > bot_valor) ? GAME_Player : GAME_Maquina;
+                    currentScreen = GAME_EMPATE;
                 }
             }
 
-            if (GuiButton((Rectangle){1050, 20, 150, 60}, "Voltar"))
+            // botão saida
+            if (GuiButton((Rectangle){1140, 10, 50, 50}, "X"))
             {
+
                 previousScreen = GAME;
                 currentScreen = CONFIRM_EXIT;
             }
         }
 
-        if (currentScreen == GAME_Player)
+        if (currentScreen == TELACONQUISTA)
         {
-            DrawCardAttributes(&Player[0], TEXT_X, TEXT_Y);
 
-            DrawCardAttributes(&Maquina[0], MACHINE_CARD_X + CARD_WIDTH + 20, TEXT_Y);
+            DrawRectangle(350, 300, 500, 200, WHITE);
+            DrawRectangleLines(350, 300, 500, 200, WHITE);
+            DrawTexture(confirme, 438, 340, WHITE);
 
-            const char text[] = "Você ganhou a rodada!";
-            int fontSize = 40;
-            int textWidth = MeasureText(text, fontSize);
-            int posX = (1200 - textWidth) / 2;
-            DrawText(text, posX, 20, fontSize, BLACK);
-
-            if (GuiButton((Rectangle){BUTTON_X, BUTTON_Y + BUTTON_HEIGHT, BUTTON_WIDTH * 2, BUTTON_HEIGHT}, "Próxima Rodada"))
+            if (GuiButton((Rectangle){700, 430, 100, 50}, "Não"))
             {
-                Player = realloc(Player, (QNT_CARTAS_PLAYER + 1) * sizeof(Cartas));
-                Player[QNT_CARTAS_PLAYER] = Maquina[0];
-                QNT_CARTAS_PLAYER++;
-                for (int i = 0; i < QNT_CARTAS_MAQUINA - 1; i++)
-                {
-                    Maquina[i] = Maquina[i + 1];
-                }
-                QNT_CARTAS_MAQUINA--;
-                Maquina = realloc(Maquina, QNT_CARTAS_MAQUINA * sizeof(Cartas));
-                atributo = 0;
-                currentScreen = GAME;
-            }
-
-            if (GuiButton((Rectangle){1050, 20, 150, 60}, "Voltar"))
-            {
-                previousScreen = GAME_Player;
-                currentScreen = CONFIRM_EXIT;
+                currentScreen = GAME_PLAYER;
             }
         }
 
-        if (currentScreen == GAME_Maquina)
+        if (currentScreen == GAME_PLAYER)
         {
-            DrawCardAttributes(&Player[0], TEXT_X, TEXT_Y);
 
-            DrawCardAttributes(&Maquina[0], MACHINE_CARD_X + CARD_WIDTH + 20, TEXT_Y);
-
-            const char text[] = "Máquina ganhou a rodada!";
-            int fontSize = 40;
-            int textWidth = MeasureText(text, fontSize);
-            int posX = (1200 - textWidth) / 2;
-            DrawText(text, posX, 20, fontSize, BLACK);
-
-            if (GuiButton((Rectangle){BUTTON_X, BUTTON_Y + BUTTON_HEIGHT, BUTTON_WIDTH * 2, BUTTON_HEIGHT}, "Próxima Rodada"))
+            // Desenha o fundo
             {
-                Maquina = realloc(Maquina, (QNT_CARTAS_MAQUINA + 1) * sizeof(Cartas));
-                Maquina[QNT_CARTAS_MAQUINA] = Player[0];
-                QNT_CARTAS_MAQUINA++;
-                for (int i = 0; i < QNT_CARTAS_PLAYER - 1; i++)
+                GuiSetStyle(DEFAULT, TEXT_SIZE, 30);
+                DrawTexture(background, BACKGROUND_X, BACKGROUND_Y, WHITE);
+                ClearBackground(RAYWHITE);
+
+                DrawTexture(logopp, 0, 0, WHITE);
+                DrawTexture(playerwin, 163, 121, WHITE);
+
+                DrawTexture(cartaPlayer, 203, 349, WHITE);
+                DrawTexture(cartaBot, 692, 349, WHITE);
+            }
+
+            // botão saida + proxima rodada
+            {
+
+                // saida
+                if (GuiButton((Rectangle){1140, 10, 50, 50}, "X"))
                 {
-                    Player[i] = Player[i + 1];
+                    previousScreen = GAME_PLAYER;
+                    currentScreen = CONFIRM_EXIT;
                 }
-                QNT_CARTAS_PLAYER--;
-                Player = realloc(Player, QNT_CARTAS_PLAYER * sizeof(Cartas));
-                atributo = 0;
-                currentScreen = GAME;
+
+                // botão proxima rodada
+                if (GuiButton((Rectangle){39, 920, 300, 57}, "Próxima Rodada"))
+                {
+                    AtualizaDeck(&Player, &totalCartasPlayer, &Bot, &totalCartasBot, currentScreen);
+
+                    atributo = 0;
+                    rodada = 0;
+                    currentScreen = GAME;
+                }
             }
 
-            if (GuiButton((Rectangle){1050, 20, 150, 60}, "Voltar"))
+        } // fim do game_player
+
+        if (currentScreen == GAME_BOT)
+        {
+
+            // Desenha o fundo
             {
-                previousScreen = GAME_Maquina;
-                currentScreen = CONFIRM_EXIT;
+                GuiSetStyle(DEFAULT, TEXT_SIZE, 30);
+                DrawTexture(background, BACKGROUND_X, BACKGROUND_Y, WHITE);
+                ClearBackground(RAYWHITE);
+
+                DrawTexture(logopp, 0, 0, WHITE);
+                DrawTexture(botwin, 163, 121, WHITE);
+
+                DrawTexture(cartaPlayer, 203, 349, WHITE);
+                DrawTexture(cartaBot, 692, 349, WHITE);
             }
-        }
+
+            // botão saida + proxima rodada
+            {
+
+                if (GuiButton((Rectangle){1140, 10, 50, 50}, "X"))
+                {
+
+                    previousScreen = GAME_BOT;
+                    currentScreen = CONFIRM_EXIT;
+                }
+
+                if (GuiButton((Rectangle){39, 920, 300, 57}, "Próxima Rodada"))
+                {
+                    AtualizaDeck(&Player, &totalCartasPlayer, &Bot, &totalCartasBot, currentScreen);
+
+                    atributo = 0;
+                    rodada = 0;
+                    currentScreen = GAME;
+                }
+            }
+
+        } // fim do game_bot
+
+        if (currentScreen == GAME_EMPATE)
+        {
+
+            // Desenha o fundo
+            {
+                GuiSetStyle(DEFAULT, TEXT_SIZE, 30);
+                DrawTexture(background, BACKGROUND_X, BACKGROUND_Y, WHITE);
+                ClearBackground(RAYWHITE);
+
+                DrawTexture(logopp, 0, 0, WHITE);
+                DrawTexture(empate, 163, 121, WHITE);
+
+                DrawTexture(cartaPlayer, 203, 349, WHITE);
+                DrawTexture(cartaBot, 692, 349, WHITE);
+            }
+
+            // botão saida + proxima rodada
+            {
+
+                if (GuiButton((Rectangle){1140, 10, 50, 50}, "X"))
+                {
+
+                    previousScreen = GAME_EMPATE;
+                    currentScreen = CONFIRM_EXIT;
+                }
+
+                if (GuiButton((Rectangle){39, 920, 300, 57}, "Próxima Rodada"))
+                {
+                    AtualizaDeck(&Player, &totalCartasPlayer, &Bot, &totalCartasBot, currentScreen);
+                    atributo = 0;
+                    rodada = 0;
+                    currentScreen = GAME;
+                }
+            }
+
+        } // fim do game_EMPATE
 
         if (currentScreen == CONFIRM_EXIT)
         {
-            DrawRectangle(300, 300, 600, 200, LIGHTGRAY);
-            DrawRectangleLines(300, 300, 600, 200, DARKGRAY);
-            DrawText("Tem certeza que deseja voltar?", 400, 350, 20, BLACK);
 
-            if (GuiButton((Rectangle){400, 450, 100, 50}, "Sim"))
+            DrawRectangle(350, 300, 500, 200, WHITE);
+            DrawRectangleLines(350, 300, 500, 200, WHITE);
+            DrawTexture(confirme, 438, 340, WHITE);
+
+            if (GuiButton((Rectangle){400, 430, 100, 50}, "Sim"))
             {
                 currentScreen = MAIN_MENU;
-                jogoplay = 1;
+                previousScreen = MAIN_MENU;
+                jogoplay = 0;
+                rodada = 0;
+                atributo = 0;
+                UnloadTexture(cartaPlayer);
+                UnloadTexture(cartaBot);
+                GuiSetStyle(DEFAULT, TEXT_SIZE, 75);
             }
-            if (GuiButton((Rectangle){700, 450, 100, 50}, "Não"))
+            if (GuiButton((Rectangle){700, 430, 100, 50}, "Não"))
             {
                 currentScreen = previousScreen;
             }
-        }
+        } // fim do confirm_exit
 
         EndDrawing();
-    }
+    } // whille (WindowShouldClose)
 
-    UnloadTexture(cartaPlayer);
-    UnloadTexture(cartaMaquina);
-    free(Player);
-    free(Maquina);
-    free(lista);
+    // Unload textures
+    UnloadTexture(logo);
+    UnloadTexture(subtitulo);
+    UnloadTexture(background);
+
+    // Fecha a janela
     CloseWindow();
 
     return 0;
