@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-// Define o MAX_CARTAS da tela
+// Define o tamanho da tela
 #define WIDTH 1200
 #define HEIGHT 1000
 
@@ -41,7 +41,7 @@
 #define PLAYERWIN_PATH "resources\\elementos\\playerganha.png"
 #define BOTRWIN_PATH "resources\\elementos\\botganha.png"
 #define CONQUISTA_PATH "resources\\elementos\\conquista.png"
-#define CAPA_PATH "resources\\cartas\\capa.png"
+#define CAPA_PATH "resources\\elementos\\cat.png"
 
 // telas do jogo
 typedef enum
@@ -94,15 +94,6 @@ typedef struct
     int legado;       // Atributo de legado
 } Cartas;
 
-void limpar_buffer()
-{
-    int ch;
-    // Consome todos os caracteres até encontrar um '\n' ou EOF
-    while ((ch = getchar()) != '\n' && ch != EOF)
-    {
-        // Apenas consome os caracteres
-    }
-}
 // Função para embaralhar as cartas
 void shuffleCartas(Cartas *array, int n)
 {
@@ -116,37 +107,25 @@ void shuffleCartas(Cartas *array, int n)
     }
 }
 
-// Function to distribute Cartas into Cartas_jogador and Cartas_bot
+// Função para distribuir as cartas entre o jogador e o bot
 void distribuiCartas(Cartas *array, int n, Cartas *jogador, Cartas *bot)
 {
     shuffleCartas(array, n);
     int metade = n / 2;
+
     if (n % 2 != 0)
     {
         printf("Número de cartas ímpar, impossível distribuir igualmente.\n");
         return;
     }
+
     for (int i = 0; i < metade; i++)
     {
-        strcpy(jogador[i].nome, array[i].nome);
-        jogador[i].letra = array[i].letra;
-        jogador[i].numero = array[i].numero;
-        jogador[i].super_trunfo = array[i].super_trunfo;
-        jogador[i].influencia = array[i].influencia;
-        jogador[i].estrategia = array[i].estrategia;
-        jogador[i].popularidade = array[i].popularidade;
-        jogador[i].legado = array[i].legado;
+        jogador[i] = array[i];
     }
     for (int i = metade; i < n; i++)
     {
-        strcpy(bot[i - metade].nome, array[i].nome);
-        bot[i - metade].letra = array[i].letra;
-        bot[i - metade].numero = array[i].numero;
-        bot[i - metade].super_trunfo = array[i].super_trunfo;
-        bot[i - metade].influencia = array[i].influencia;
-        bot[i - metade].estrategia = array[i].estrategia;
-        bot[i - metade].popularidade = array[i].popularidade;
-        bot[i - metade].legado = array[i].legado;
+        bot[i - metade] = array[i];
     }
 }
 
@@ -154,14 +133,12 @@ void distribuiCartas(Cartas *array, int n, Cartas *jogador, Cartas *bot)
 void geraImagemCarta(Texture2D *carta, Cartas cartaInfo)
 {
     char filePath[] = "resources\\cartas\\";
-    printf("%s\n", filePath);
 
     int i = cartaInfo.numero;
     char b[2];
     b[0] = cartaInfo.letra;
     b[1] = '\0';
     char buffer[33];
-    printf("%i - %c", i, b[0]);
 
     printf("file: %s\n", filePath);
 
@@ -182,7 +159,7 @@ void geraImagemCarta(Texture2D *carta, Cartas cartaInfo)
     // Verifica se a imagem foi carregada corretamente
     if (carta_i.data == NULL)
     {
-        carta_i = LoadImage(CAPA_PATH);
+        carta_i = LoadImage("resources\\cartas\\cat.png");
     }
 
     // Redimensiona a imagem
@@ -257,8 +234,6 @@ int main(void)
     int jogoplay = 0; // marca se o jogo começou ou não
     char filename[] = "cartas.csv";
     int contador = 0;
-    int coluna;
-    int tamanhoBinario;
     char linhas[256];
     int atributo = 0;
     int jogador_valor, bot_valor;
@@ -283,47 +258,37 @@ int main(void)
     FILE *binario = fopen("save.bin", "rb");
     FILE *file = fopen(filename, "r");
 
+    // Carregamento das cartas do arquivo CSV ou do arquivo binário
     if (binario == NULL)
     {
         if (file == NULL)
         {
-            fprintf(stderr, "Não foi possivel abrir o arquivo %s\n", filename);
+            fprintf(stderr, "Não foi possível abrir o arquivo %s\n", filename);
             exit(1);
         }
-
-        printf("Seja bem-vindo!\n");
 
         while (fgets(linhas, sizeof(linhas), file))
         {
             contador++;
-
-            // Pula a linha do cabeçalho
             if (contador == 1)
-            {
-                continue;
-            }
+                continue; // Pula a linha do cabeçalho
 
-            // Preenche a estrutura
-            int index = contador - 2; // Índice no array
+            int index = contador - 2;
             if (index >= MAX_CARTAS)
-            {
-                break; // Garante que não ultrapasse o limite de n cartas, no caso 10
-            }
+                break;
 
-            // Casos tokens
             char *token = strtok(linhas, ",");
-            coluna = 0;
+            int coluna = 0;
             while (token)
             {
                 coluna++;
                 switch (coluna)
                 {
-                case 2: // Nome
+                case 2:
                     strncpy(baralho[index].nome, token, sizeof(baralho[index].nome) - 1);
-                    baralho[index].nome[sizeof(baralho[index].nome) - 1] = '\0';
                     break;
                 case 3:
-                    baralho[index].influencia = atoi(token); // Salvo como int (converte string -> int)
+                    baralho[index].influencia = atoi(token);
                     break;
                 case 4:
                     baralho[index].estrategia = atoi(token);
@@ -335,7 +300,7 @@ int main(void)
                     baralho[index].super_trunfo = atoi(token);
                     break;
                 case 7:
-                    baralho[index].letra = token[0]; // Corrige para armazenar apenas o primeiro caractere
+                    baralho[index].letra = token[0];
                     break;
                 case 8:
                     baralho[index].numero = atoi(token);
@@ -350,14 +315,12 @@ int main(void)
     }
     else
     {
-        printf("Bem vindo de volta!\n");
-
         fseek(binario, 0, SEEK_END);
-        tamanhoBinario = ftell(binario);
-        tamanhoBinario = tamanhoBinario / sizeof(Cartas);
-        baralho = realloc(baralho, sizeof(Cartas) * MAX_CARTAS);
+        int tamanhoBinario = ftell(binario);
+        int tamanho = tamanhoBinario / sizeof(Cartas);
+        baralho = realloc(baralho, sizeof(Cartas) * tamanho);
         fseek(binario, 0, 0);
-        fread(baralho, sizeof(Cartas), MAX_CARTAS, binario);
+        fread(baralho, sizeof(Cartas), tamanho, binario);
         fclose(binario);
     }
 
@@ -523,7 +486,6 @@ int main(void)
             }
         }
 
-        //         ----------------------- CASO PLAYER GANHE A RODADA -----------------------
         if (currentScreen == GAME_PLAYER)
         {
 
@@ -569,7 +531,6 @@ int main(void)
 
                     atributo = 0;
                     rodada = 0;
-                    
                     if (totalCartasBot == 0)
                     {
                         currentScreen = PLAYER_WIN;
@@ -582,15 +543,14 @@ int main(void)
             }
         } // fim do game_player
 
-        //         ----------------------- CASO QNT DE CARTAS BOT ACABE (PLAYER GANHA JOGO) -----------------------
         if (currentScreen == PLAYER_WIN)
         {
             DrawText("Vitória Player", 300, 300, 50, WHITE);
         }
 
-        //         ----------------------- CASO BOT GANHE A RODADA  -----------------------
         if (currentScreen == GAME_BOT)
         {
+            int j = 0; // como os dois botões "influencia" e "proxima rodada" estão um encima do outro, é preciso uma variavel de controle
 
             // Desenha o fundo
             {
@@ -633,25 +593,24 @@ int main(void)
 
                     atributo = 0;
                     rodada = 0;
-                    if (totalCartasPlayer == 0)
-                    {
-                        currentScreen = BOT_WIN;
-                    }
-                    else
-                    {
-                        currentScreen = GAME;
-                    }
+                    currentScreen = GAME;
+                if (totalCartasPlayer == 0)
+                {
+                    currentScreen = BOT_WIN;
+                }
+                else
+                {
+                    currentScreen = GAME;
+                }
                 }
             }
         } // fim do game_bot
 
-        //         ----------------------- CASO QNT DE CARTAS JOGADOR ACABE (PLAYER GANHA BOT) -----------------------
         if (currentScreen == BOT_WIN)
         {
             DrawText("Vitória Bot", 300, 300, 50, WHITE);
         }
 
-        //         ----------------------- CASO EMPATE RODADA -----------------------
         if (currentScreen == GAME_EMPATE)
         {
             {
