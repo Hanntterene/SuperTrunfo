@@ -7,9 +7,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define MAX_FRAME_DELAY 20
-#define MIN_FRAME_DELAY 1
-
 // Define o tamanho da tela
 #define WIDTH 1200
 #define HEIGHT 1000
@@ -41,14 +38,11 @@
 #define LOGO_PATHPP "resources\\elementos\\Group-2.png"
 #define TOP_PATH "resources\\elementos\\Group.png"
 #define CONFIRME_PATH "resources\\elementos\\temcerteza.png"
-#define PLAYERWIN_PATH "resources\\elementos\\playerganha.png"
-#define BOTRWIN_PATH "resources\\elementos\\botganha.png"
+#define PLAYERWIN_PATH "resources\\elementos\\Groupplayer.png"
+#define BOTRWIN_PATH "resources\\elementos\\Groupbot.png"
 #define CAPA_PATH "resources\\cartas\\capa.png"
 #define CONQUISTA_PATH "resources\\elementos\\conquista.png"
 #define EMPATE_PATH "resources\\elementos\\empate.png"
-#define MAGO_PATH "resources\\elementos\\mago.png"
-#define NOMAGO_PATH "resources\\elementos\\nomago.png"
-#define INTERROGACAO_PATH "resources\\elementos\\interrogacao.png"
 
 // telas do jogo
 typedef enum
@@ -61,9 +55,9 @@ typedef enum
     GAME_PLAYER,
     GAME_EMPATE,
     END_GAME,
-    PROMPTCONQUISTAS,
+    TELACONQUISTA,
     PLAYER_WIN,
-    BOT_WIN,
+    BOT_WIN
 
 } Telas;
 
@@ -269,33 +263,23 @@ void AtualizaDeck(Cartas **jogador, int *tam_jogador, Cartas **bot, int *tam_bot
         (*bot)[*tam_bot] = carta_bot;
         (*tam_bot)++;
     }
-}
 
+    // Em caso de empate, cada carta retorna ao seu próprio baralho
+}
 int main(void)
 {
-    char *nomeArquivo = "conquistas.csv";
-    FILE *fileconq;
     int conquistas[3] = {0, 0, 0};
-    fileconq = fopen(nomeArquivo, "r");
-    if (fileconq == NULL) {
-    printf("Não foi possível abrir o arquivo '%s'. Usando vetor padrão.\n", nomeArquivo);
-    } else {
-        // Se o arquivo for aberto com sucesso, lê os valores
-        fscanf(fileconq, "%d,%d,%d", &conquistas[0], &conquistas[1], &conquistas[2]);
-        fclose(fileconq);
-    }
 
     // Carregamento de cartas
-    const int MAX_CARTAS = 2;
+    const int MAX_CARTAS = 32;
     int jogoplay = 0; // marca se o jogo começou ou não
-    char filename[] = "testesempate.csv";
+    char filename[] = "cartas.csv";
     int contador = 0;
     char linhas[256];
     int atributo = 0;
     int jogador_valor, bot_valor;
     int ganhador = -1;
     int rodada = 0;
-
 
     int totalCartasBot = MAX_CARTAS / 2;
     int totalCartasPlayer = MAX_CARTAS / 2;
@@ -381,11 +365,7 @@ int main(void)
         fclose(binario);
     }
 
-    
-    
-    
     fclose(file);
-
     //   ----------------------------- EDITOR DE BARALHO --------------------------------
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -394,7 +374,6 @@ int main(void)
     InitWindow(WIDTH, HEIGHT, "Super Trunfo Histórico");
 
     // Carrega os elementos
-
     Texture2D logo = LoadTexture(LOGO_PATH);
     Texture2D background = LoadTexture(BACKGROUND_PATH);
     Texture2D subtitulo = LoadTexture(SUBTITLE_PATH);
@@ -406,15 +385,6 @@ int main(void)
     Texture2D conquista = LoadTexture(CONQUISTA_PATH);
     Texture2D costas = LoadTexture(CAPA_PATH);
     Texture2D empate = LoadTexture(EMPATE_PATH);
-    Image mago_i = LoadImage(MAGO_PATH);
-    Image nomago_i = LoadImage(NOMAGO_PATH);
-    ImageResize(&mago_i, 300, 300);
-    ImageResize(&nomago_i, 300, 300);
-    Texture2D mago = LoadTextureFromImage(mago_i);
-    Texture2D nomago = LoadTextureFromImage(nomago_i);
-    Texture2D interogacao = LoadTexture(INTERROGACAO_PATH);
-    Texture2D gatook = LoadTexture("resources\\Elementos\\cat\\catok.jpg");
-    Texture2D gatotiti = LoadTexture("resources\\Elementos\\cat\\gatotiti.jpg");
 
     // inicializa cartas
     Texture2D cartaPlayer;
@@ -457,7 +427,6 @@ int main(void)
             {
                 // Ação para o botão CONQUISTAS
                 printf("Botão CONQUISTAS pressionado!\n");
-                currentScreen = ACHIEVEMENTS;
             }
             if (GuiButton((Rectangle){BUTTON_POS_X, BUTTON_POS_Y + 2 * (SPACE), BUTTON_WIDTH, BUTTON_HEIGHT}, "DECK"))
             {
@@ -535,25 +504,11 @@ int main(void)
                 ganhador = DeterminarGanhador(jogador_valor, bot_valor, Player, Bot);
                 if (ganhador == PLAYER)
                 {
-                    if (totalCartasBot - 1 == 0)
-                    {
-                        currentScreen = PLAYER_WIN;
-                    }
-                    else
-                    {
-                        currentScreen = GAME_PLAYER;
-                    }
+                    currentScreen = GAME_PLAYER;
                 }
                 if (ganhador == BOT)
                 {
-                    if (totalCartasPlayer - 1 == 0)
-                    {
-                        currentScreen = BOT_WIN;
-                    }
-                    else
-                    {
-                        currentScreen = GAME_BOT;
-                    }
+                    currentScreen = GAME_BOT;
                 }
                 if (ganhador == EMPATE)
                 {
@@ -570,16 +525,16 @@ int main(void)
             }
         }
 
-        if (currentScreen == PROMPTCONQUISTAS)
+        if (currentScreen == TELACONQUISTA)
         {
 
             DrawRectangle(350, 300, 500, 200, WHITE);
             DrawRectangleLines(350, 300, 500, 200, WHITE);
-            DrawTexture(conquista, 438, 340, WHITE);
+            DrawTexture(confirme, 438, 340, WHITE);
 
-            if (GuiButton((Rectangle){450, 430, 300, 50}, "continue"))
+            if (GuiButton((Rectangle){700, 430, 100, 50}, "Não"))
             {
-                currentScreen = previousScreen;
+                currentScreen = GAME_PLAYER;
             }
         }
 
@@ -612,18 +567,11 @@ int main(void)
                 // botão proxima rodada
                 if (GuiButton((Rectangle){39, 920, 300, 57}, "Próxima Rodada"))
                 {
-                    // ganhou do supertrunfo "ganhou do mago"
-
                     AtualizaDeck(&Player, &totalCartasPlayer, &Bot, &totalCartasBot, currentScreen);
+
                     atributo = 0;
                     rodada = 0;
                     currentScreen = GAME;
-                    if (Bot[0].super_trunfo == 1 && !(Player[0].letra == 'A' || Player[0].letra == 'a') && conquistas[0] == 0)
-                    {
-                        previousScreen = currentScreen;
-                        currentScreen = PROMPTCONQUISTAS;
-                        conquistas[0] = 1;
-                    }
                 }
             }
 
@@ -657,18 +605,11 @@ int main(void)
 
                 if (GuiButton((Rectangle){39, 920, 300, 57}, "Próxima Rodada"))
                 {
-                    // perdeu do supertrunfo "perdeu pro mago"
                     AtualizaDeck(&Player, &totalCartasPlayer, &Bot, &totalCartasBot, currentScreen);
 
                     atributo = 0;
                     rodada = 0;
                     currentScreen = GAME;
-                    if (Bot[0].super_trunfo == 1 && !(Player[0].letra == 'A' || Player[0].letra == 'a') && conquistas[1] == 0)
-                    {
-                        previousScreen = currentScreen;
-                        currentScreen = PROMPTCONQUISTAS;
-                        conquistas[1] = 1;
-                    }
                 }
             }
 
@@ -706,12 +647,6 @@ int main(void)
                     atributo = 0;
                     rodada = 0;
                     currentScreen = GAME;
-                    if (conquistas[2] == 0)
-                    {
-                        previousScreen = currentScreen;
-                        currentScreen = PROMPTCONQUISTAS;
-                        conquistas[2] = 1;
-                    }
                 }
             }
 
@@ -741,117 +676,9 @@ int main(void)
             }
         } // fim do confirm_exit
 
-        if (currentScreen == ACHIEVEMENTS)
-        {
-
-            GuiSetStyle(DEFAULT, TEXT_SIZE, 30);
-            DrawTexture(background, BACKGROUND_X, BACKGROUND_Y, WHITE);
-            ClearBackground(RAYWHITE);
-
-            if (conquistas[0] == 0)
-            {
-                DrawTexture(nomago, 86, 267, WHITE);
-                DrawTexture(interogacao, 111, 588, WHITE);
-            }
-            else
-            {
-                DrawTexture(mago, 86, 267, WHITE);
-            }
-            if (conquistas[1] == 0)
-            {
-                DrawTexture(nomago, 448, 267, WHITE);
-            }
-            else
-            {
-                DrawTexture(mago, 448, 267, WHITE);
-            }
-            if (conquistas[2] == 0)
-            {
-                DrawTexture(nomago, 810, 267, WHITE);
-            }
-            else
-            {
-                DrawTexture(mago, 810, 267, WHITE);
-            }
-            // saida
-            if (GuiButton((Rectangle){1140, 10, 50, 50}, "X"))
-            {
-                previousScreen = GAME_PLAYER;
-                currentScreen = CONFIRM_EXIT;
-            }
-        }
-        if (currentScreen == BOT_WIN)
-        {
-            // Desenha o fundo
-            {
-                GuiSetStyle(DEFAULT, TEXT_SIZE, 30);
-                DrawTexture(background, BACKGROUND_X, BACKGROUND_Y, WHITE);
-                ClearBackground(RAYWHITE);
-            }
-
-            if (GuiButton((Rectangle){1140, 10, 50, 50}, "X"))
-            {
-
-                previousScreen = GAME_BOT;
-                currentScreen = CONFIRM_EXIT;
-            }
-        }
-        if (currentScreen == PLAYER_WIN)
-        {
-            // Desenha o fundo
-            {
-
-                GuiSetStyle(DEFAULT, TEXT_SIZE, 75);
-                DrawTexture(background, BACKGROUND_X, BACKGROUND_Y, WHITE);
-                ClearBackground(RAYWHITE);
-            }
-
-            if (GuiButton((Rectangle){100, 100, 1000, 150}, "Você ganhou! Parabens"))
-            {
-                currentScreen = MAIN_MENU;
-                previousScreen = MAIN_MENU;
-                jogoplay = 0;
-                rodada = 0;
-                atributo = 0;
-                UnloadTexture(cartaPlayer);
-                UnloadTexture(cartaBot);
-                GuiSetStyle(DEFAULT, TEXT_SIZE, 75);
-            }
-            DrawTexture(gatook, 300, 400, WHITE);
-        }
-
-        if (currentScreen == BOT_WIN)
-        {
-            // Desenha o fundo
-            {
-
-                GuiSetStyle(DEFAULT, TEXT_SIZE, 75);
-                DrawTexture(background, BACKGROUND_X, BACKGROUND_Y, WHITE);
-                ClearBackground(RAYWHITE);
-                DrawTexture(gatotiti, 300, 400, WHITE);
-            }
-
-            if (GuiButton((Rectangle){100, 100, 1000, 150}, "Você perdeu! :((("))
-            {
-                currentScreen = MAIN_MENU;
-                previousScreen = MAIN_MENU;
-                jogoplay = 0;
-                rodada = 0;
-                atributo = 0;
-                UnloadTexture(cartaPlayer);
-                UnloadTexture(cartaBot);
-                GuiSetStyle(DEFAULT, TEXT_SIZE, 75);
-            }
-        }
-
         EndDrawing();
     } // whille (WindowShouldClose)
 
-    fileconq = fopen("conquistas.csv", "w");
-    if (fileconq == NULL) {
-        printf("Erro ao criar o arquivo 'conquistas.csv'.\n");
-        return 1;
-    }
     // Unload textures
     UnloadTexture(logo);
     UnloadTexture(subtitulo);
