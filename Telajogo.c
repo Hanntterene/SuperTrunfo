@@ -235,12 +235,12 @@ void AtualizaDeck(Cartas **jogador, int *tam_jogador, Cartas **bot, int *tam_bot
 
     // Atualiza o deck do jogador
     memmove(*jogador, *jogador + 1, (*tam_jogador - 1) * sizeof(Cartas));
-    (*tam_jogador)--;
+    *tam_jogador = *tam_jogador - 1;
     *jogador = realloc(*jogador, (*tam_jogador) * sizeof(Cartas));
 
     // Atualiza o deck do bot
     memmove(*bot, *bot + 1, (*tam_bot - 1) * sizeof(Cartas));
-    (*tam_bot)--;
+    *tam_bot = *tam_jogador - 1;
     *bot = realloc(*bot, (*tam_bot) * sizeof(Cartas));
 
     if (currentScreen == GAME_PLAYER)
@@ -248,7 +248,7 @@ void AtualizaDeck(Cartas **jogador, int *tam_jogador, Cartas **bot, int *tam_bot
         *jogador = realloc(*jogador, (*tam_jogador + 2) * sizeof(Cartas));
         (*jogador)[*tam_jogador] = carta_jogador;
         (*jogador)[*tam_jogador + 1] = carta_bot;
-        *tam_jogador += 2;
+        *tam_jogador = *tam_jogador + 2;
     }
 
     if (currentScreen == GAME_BOT)
@@ -256,18 +256,18 @@ void AtualizaDeck(Cartas **jogador, int *tam_jogador, Cartas **bot, int *tam_bot
         *bot = realloc(*bot, (*tam_bot + 2) * sizeof(Cartas));
         (*bot)[*tam_bot] = carta_bot;
         (*bot)[*tam_bot + 1] = carta_jogador;
-        *tam_bot += 2;
+        *tam_bot = *tam_bot + 2;
     }
 
     if (currentScreen == EMPATE)
     {
         *jogador = realloc(*jogador, (*tam_jogador + 1) * sizeof(Cartas));
         (*jogador)[*tam_jogador] = carta_jogador;
-        (*tam_jogador)++;
+        *tam_jogador = *tam_jogador + 1;
 
         *bot = realloc(*bot, (*tam_bot + 1) * sizeof(Cartas));
         (*bot)[*tam_bot] = carta_bot;
-        (*tam_bot)++;
+        *tam_bot = *tam_bot + 1;
     }
 }
 
@@ -516,6 +516,7 @@ int main(void)
                         atributo = INFLUENCIA;
                         jogador_valor = Player[0].influencia;
                         bot_valor = Bot[0].influencia;
+                        printf("player: %i\n Bot: %i", totalCartasPlayer, totalCartasBot);
                     }
                     if (GuiButton((Rectangle){39 + 1 * (35 + 253), 845, 253, 57}, "Estratégia"))
                     {
@@ -523,6 +524,7 @@ int main(void)
                         atributo = ESTRATEGIA;
                         jogador_valor = Player[0].estrategia;
                         bot_valor = Bot[0].estrategia;
+                        printf("player: %i\n Bot: %i", totalCartasPlayer, totalCartasBot);
                     }
                     if (GuiButton((Rectangle){39 + 2 * (35 + 253), 845, 253, 57}, "Popularidade"))
                     {
@@ -530,6 +532,7 @@ int main(void)
                         atributo = POPULARIDADE;
                         jogador_valor = Player[0].popularidade;
                         bot_valor = Bot[0].popularidade;
+                        printf("player: %i\n Bot: %i", totalCartasPlayer, totalCartasBot);
                     }
                     if (GuiButton((Rectangle){39 + 3 * (35 + 253), 845, 253, 57}, "Legado"))
                     {
@@ -537,6 +540,7 @@ int main(void)
                         atributo = LEGADO;
                         jogador_valor = Player[0].legado;
                         bot_valor = Bot[0].legado;
+                        printf("player: %i\n Bot: %i", totalCartasPlayer, totalCartasBot);
                     }
                 } // botoes de atributo
             }
@@ -571,10 +575,12 @@ int main(void)
                     atributo = LEGADO;
                     jogador_valor = Player[0].legado;
                     bot_valor = Bot[0].legado;
+                    
                 }
                 if (GuiButton((Rectangle){39 + 3 * (35 + 253), 845, 253, 57}, "continue"))
                 {
                     continuar = 1;
+                    printf("player: %i\n Bot: %i", totalCartasPlayer, totalCartasBot);
                 }
             }
 
@@ -662,18 +668,18 @@ int main(void)
                 {
                     // ganhou do supertrunfo "ganhou do mago"
 
-                    AtualizaDeck(&Player, &totalCartasPlayer, &Bot, &totalCartasBot, currentScreen);
-                    atributo = 0;
-                    rodada = 0;
-                    continuar = 0;
-                    vez = PLAYER;
-                    currentScreen = GAME;
                     if (Bot[0].super_trunfo == 1 && !(Player[0].letra == 'A' || Player[0].letra == 'a') && conquistas[0] == 0)
                     {
                         previousScreen = currentScreen;
                         currentScreen = PROMPTCONQUISTAS;
                         conquistas[0] = 1;
                     }
+                    AtualizaDeck(&Player, &totalCartasPlayer, &Bot, &totalCartasBot, currentScreen);
+                    atributo = 0;
+                    rodada = 0;
+                    continuar = 0;
+                    vez = PLAYER;
+                    currentScreen = GAME;
                 }
             }
 
@@ -708,19 +714,18 @@ int main(void)
                 if (GuiButton((Rectangle){39, 920, 300, 57}, "Próxima Rodada"))
                 {
                     // perdeu do supertrunfo "perdeu pro mago"
-                    AtualizaDeck(&Player, &totalCartasPlayer, &Bot, &totalCartasBot, currentScreen);
-
-                    atributo = 0;
-                    rodada = 0;
-                    continuar = 0;
-                    vez = BOT;
-                    currentScreen = GAME;
                     if (Bot[0].super_trunfo == 1 && !(Player[0].letra == 'A' || Player[0].letra == 'a') && conquistas[1] == 0)
                     {
                         previousScreen = currentScreen;
                         currentScreen = PROMPTCONQUISTAS;
                         conquistas[1] = 1;
                     }
+                    AtualizaDeck(&Player, &totalCartasPlayer, &Bot, &totalCartasBot, currentScreen);
+                    atributo = 0;
+                    rodada = 0;
+                    continuar = 0;
+                    vez = BOT;
+                    currentScreen = GAME;
                 }
             }
 
@@ -754,17 +759,17 @@ int main(void)
 
                 if (GuiButton((Rectangle){39, 920, 300, 57}, "Próxima Rodada"))
                 {
-                    AtualizaDeck(&Player, &totalCartasPlayer, &Bot, &totalCartasBot, currentScreen);
-                    atributo = 0;
-                    rodada = 0;
-                    continuar = 0;
-                    currentScreen = GAME;
                     if (conquistas[2] == 0)
                     {
                         previousScreen = currentScreen;
                         currentScreen = PROMPTCONQUISTAS;
                         conquistas[2] = 1;
                     }
+                    AtualizaDeck(&Player, &totalCartasPlayer, &Bot, &totalCartasBot, currentScreen);
+                    atributo = 0;
+                    rodada = 0;
+                    continuar = 0;
+                    currentScreen = GAME;
                 }
             }
 
