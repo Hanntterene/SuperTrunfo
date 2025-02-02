@@ -236,11 +236,13 @@ void AtualizaDeck(Cartas **jogador, int *tam_jogador, Cartas **bot, int *tam_bot
     // Atualiza o deck do jogador
     memmove(*jogador, *jogador + 1, (*tam_jogador - 1) * sizeof(Cartas));
     *tam_jogador = *tam_jogador - 1;
+    printf("- JOGADOR\n");
     *jogador = realloc(*jogador, (*tam_jogador) * sizeof(Cartas));
 
     // Atualiza o deck do bot
     memmove(*bot, *bot + 1, (*tam_bot - 1) * sizeof(Cartas));
-    *tam_bot = *tam_jogador - 1;
+    *tam_bot = *tam_bot - 1;
+    printf("- BOT\n");
     *bot = realloc(*bot, (*tam_bot) * sizeof(Cartas));
 
     if (currentScreen == GAME_PLAYER)
@@ -249,6 +251,7 @@ void AtualizaDeck(Cartas **jogador, int *tam_jogador, Cartas **bot, int *tam_bot
         (*jogador)[*tam_jogador] = carta_jogador;
         (*jogador)[*tam_jogador + 1] = carta_bot;
         *tam_jogador = *tam_jogador + 2;
+        printf(" + 2 JOGADOR\n");
     }
 
     if (currentScreen == GAME_BOT)
@@ -257,17 +260,20 @@ void AtualizaDeck(Cartas **jogador, int *tam_jogador, Cartas **bot, int *tam_bot
         (*bot)[*tam_bot] = carta_bot;
         (*bot)[*tam_bot + 1] = carta_jogador;
         *tam_bot = *tam_bot + 2;
+        printf("+2 BOT\n");
     }
 
-    if (currentScreen == EMPATE)
+    if (currentScreen == GAME_EMPATE)
     {
         *jogador = realloc(*jogador, (*tam_jogador + 1) * sizeof(Cartas));
         (*jogador)[*tam_jogador] = carta_jogador;
         *tam_jogador = *tam_jogador + 1;
+        printf("+ JOGADOR\n");
 
         *bot = realloc(*bot, (*tam_bot + 1) * sizeof(Cartas));
         (*bot)[*tam_bot] = carta_bot;
         *tam_bot = *tam_bot + 1;
+        printf("+ JOGADOR\n");
     }
 }
 
@@ -478,6 +484,8 @@ int main(void)
             // caso primeiro jogo
             if (jogoplay == 0)
             {
+                totalCartasBot = MAX_CARTAS/2;
+                totalCartasPlayer = MAX_CARTAS/2;
                 distribuiCartas(baralho, MAX_CARTAS, Player, Bot);
                 jogoplay = 1; // começou um jogo
             }
@@ -486,6 +494,7 @@ int main(void)
             if (rodada == 0)
             {
                 // gerar cartas atuais
+                printf("player: %i\n Bot: %i\n max: %i\n", totalCartasPlayer, totalCartasBot, MAX_CARTAS);
                 geraImagemCarta(&cartaPlayer, Player[0]);
                 geraImagemCarta(&cartaBot, Bot[0]);
                 rodada = 1;
@@ -516,7 +525,7 @@ int main(void)
                         atributo = INFLUENCIA;
                         jogador_valor = Player[0].influencia;
                         bot_valor = Bot[0].influencia;
-                        printf("player: %i\n Bot: %i", totalCartasPlayer, totalCartasBot);
+                        
                     }
                     if (GuiButton((Rectangle){39 + 1 * (35 + 253), 845, 253, 57}, "Estratégia"))
                     {
@@ -524,7 +533,7 @@ int main(void)
                         atributo = ESTRATEGIA;
                         jogador_valor = Player[0].estrategia;
                         bot_valor = Bot[0].estrategia;
-                        printf("player: %i\n Bot: %i", totalCartasPlayer, totalCartasBot);
+                        
                     }
                     if (GuiButton((Rectangle){39 + 2 * (35 + 253), 845, 253, 57}, "Popularidade"))
                     {
@@ -532,7 +541,7 @@ int main(void)
                         atributo = POPULARIDADE;
                         jogador_valor = Player[0].popularidade;
                         bot_valor = Bot[0].popularidade;
-                        printf("player: %i\n Bot: %i", totalCartasPlayer, totalCartasBot);
+                        
                     }
                     if (GuiButton((Rectangle){39 + 3 * (35 + 253), 845, 253, 57}, "Legado"))
                     {
@@ -540,7 +549,7 @@ int main(void)
                         atributo = LEGADO;
                         jogador_valor = Player[0].legado;
                         bot_valor = Bot[0].legado;
-                        printf("player: %i\n Bot: %i", totalCartasPlayer, totalCartasBot);
+                        
                     }
                 } // botoes de atributo
             }
@@ -580,7 +589,7 @@ int main(void)
                 if (GuiButton((Rectangle){39 + 3 * (35 + 253), 845, 253, 57}, "continue"))
                 {
                     continuar = 1;
-                    printf("player: %i\n Bot: %i", totalCartasPlayer, totalCartasBot);
+
                 }
             }
 
